@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Navigation Page",
+  "version": "1.0",
+  "description": "Replace browser home page with a new demo page",
+  "permissions": [],
+  "chrome_url_overrides": {
+    "newtab": "homepage.html"
+  }
+}

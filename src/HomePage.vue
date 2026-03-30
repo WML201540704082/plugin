@@ -1,0 +1,663 @@
+<template>
+  <div id="app">
+    <!-- 顶部用户信息 -->
+    <div class="user-info">
+      <span>管理员，欢迎！</span>
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          <i class="el-icon-setting"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item>个人设置</el-dropdown-item>
+          <el-dropdown-item>退出登录</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+      <!-- 时钟和日期 -->
+      <div class="clock-section">
+        <div class="time">{{ currentTime }}</div>
+        <div class="date" v-html="currentDate"></div>
+      </div>
+
+      <!-- 搜索框 -->
+      <div class="search-section">
+        <el-input
+          v-model="searchText"
+          placeholder="输入搜索内容"
+          prefix-icon="el-icon-search"
+          style="width: 760px;">
+        </el-input>
+        <el-button class="search-button" @click="search">搜索</el-button>
+      </div>
+
+      <!-- 内容卡片区域 -->
+      <div class="cards-section">
+        <!-- 信息发布卡片 -->
+        <el-card class="info-card">
+          <div class="info-header">
+            <el-tabs v-model="activeInfoTab" type="border-card" class="info-tabs">
+              <el-tab-pane name="info">
+                <template slot="label">
+                  <span class="info-icon"></span>
+                  <span>信息发布</span>
+                </template>
+                <div class="info-list">
+                  <div class="info-item" v-for="(item, index) in infoList" :key="index">
+                    <i class="el-icon-bell"></i>
+                    <span class="info-title">{{ item.title }}</span>
+                    <span class="info-date">{{ item.date }}</span>
+                  </div>
+                </div>
+              </el-tab-pane>
+              <div class="more-link">
+                <span>>></span>
+              </div>
+            </el-tabs>
+          </div>
+        </el-card>
+
+        <!-- 公司导航卡片 -->
+        <el-card class="nav-card">
+          <div class="nav-header">
+            <el-input
+              v-model="navSearch"
+              placeholder="请输入"
+              size="small"
+              class="nav-input">
+            </el-input>
+            <el-tabs v-model="activeNav" type="border-card" class="nav-tabs">
+              <el-tab-pane name="company">
+                <template slot="label">
+                  <span class="tab-icon"></span>
+                  <span>公司导航</span>
+                </template>
+                <div class="nav-items">
+                  <div class="nav-item" v-for="(item, index) in navItems" :key="index">
+                    <div class="nav-icon" :class="item.iconClass">
+                      <i class="el-icon-office-building"></i>
+                    </div>
+                    <span class="nav-name">{{ item.name }}</span>
+                  </div>
+                </div>
+                <div class="more-link">
+                  <span>>></span>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane name="favorites">
+                <template slot="label">
+                  <span class="tab-icon"></span>
+                  <span>收藏夹导航</span>
+                </template>
+                <div class="nav-items">
+                  <div class="nav-item" v-for="(item, index) in navItems" :key="index">
+                    <div class="nav-icon" :class="item.iconClass">
+                      <i class="el-icon-star-on"></i>
+                    </div>
+                    <span class="nav-name">{{ item.name }}</span>
+                  </div>
+                </div>
+                <div class="more-link">
+                  <span>>></span>
+                </div>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+        </el-card>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomePage',
+  data() {
+    return {
+      currentTime: '',
+      currentDate: '',
+      searchText: '',
+      navSearch: '',
+      activeNav: 'company',
+      activeInfoTab: 'info',
+      infoList: [
+        { title: '关于信息信息信息信息信息信息的通知', date: '2026-03-13' },
+        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-06' },
+        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
+        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
+        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
+        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
+        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' }
+      ],
+      navItems: [
+        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-green' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-green' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-green' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
+        { name: '鲁软科技公司门户', iconClass: 'icon-green' }
+      ]
+    }
+  },
+  mounted() {
+    this.updateDateTime();
+    setInterval(this.updateDateTime, 1000);
+  },
+  methods: {
+    updateDateTime() {
+      const now = new Date();
+      // 更新时间
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      this.currentTime = `${hours}:${minutes}`;
+      
+      // 更新日期
+      const year = now.getFullYear();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      const weekDay = weekDays[now.getDay()];
+      const lunarDate = this.getLunarDate(now);
+      this.currentDate = `${year}-${month}-${day}&nbsp; ${weekDay}&nbsp; ${lunarDate}`;
+    },
+    getLunarDate(date) {
+      // 简单的农历日期计算（实际项目中可能需要更复杂的农历库）
+      const lunarMonths = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '冬月', '腊月'];
+      const lunarDays = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+                        '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+                        '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
+      
+      // 这里使用简化的计算，实际项目中建议使用专业的农历库
+      const month = date.getMonth();
+      const day = date.getDate();
+      
+      // 假设农历月份与公历月份相同（实际情况更复杂）
+      const lunarMonth = lunarMonths[month];
+      const lunarDay = lunarDays[day - 1] || lunarDays[lunarDays.length - 1];
+      
+      return `${lunarMonth}${lunarDay}`;
+    },
+    search() {
+      if (this.searchText) {
+        this.$message.success(`搜索内容：${this.searchText}`);
+      } else {
+        this.$message.warning('请输入搜索内容');
+      }
+    }
+  }
+}
+</script>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+}
+</style>
+
+<style scoped>
+#app {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  background: url('./assets/background.png');
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 背景装饰 */
+#app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(135deg, rgba(173, 216, 230, 0.3) 0%, transparent 50%),
+    linear-gradient(45deg, rgba(144, 238, 144, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* 用户信息 */
+.user-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: #666;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.user-info span {
+  margin-right: 10px;
+}
+
+.el-dropdown-link {
+  color: #666;
+  cursor: pointer;
+}
+
+/* 主内容区域 */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 时钟区域 */
+.clock-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.time {
+  font-size: 8em;
+  font-family: 'Lao Sans Pro';
+  font-weight: Regular;
+  color: rgb(10, 95, 88);
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 5px;
+}
+
+.date {
+  font-size: 1.2em;
+  color: #666;
+}
+
+/* 搜索区域 */
+.search-section {
+  margin-bottom: 50px;
+}
+
+.search-button {
+  background: linear-gradient(135deg, rgb(0, 197, 134) 0%, rgb(97, 224, 181) 100%);
+  color: #ffffff;
+  border: none;
+  margin-left: 10px;
+}
+/* 卡片区域 */
+.cards-section {
+  display: flex;
+  gap: 30px;
+  width: 90%;
+}
+:deep .el-card__header {
+    padding: 0 30px 0 20px;
+    border-bottom: none;
+}
+:deep .el-card__body {
+    padding: 20px 20px 0;
+}
+/* 信息发布卡片 */
+.info-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+.el-tabs--border-card {
+  background: none;
+  box-shadow: none;
+}
+:deep .el-tabs__nav-scroll {
+  background: #f4fdfb;
+}
+:deep .el-tabs--border-card>.el-tabs__header .el-tabs__item {
+  border: none;
+  color: rgb(153, 153, 153);
+}
+:deep .el-tabs--border-card>.el-tabs__header .el-tabs__item:hover {
+  color: rgb(51, 51, 51) !important;
+}
+:deep .el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active {
+  background: #f4fdfb;
+  color: rgb(51, 51, 51)!important;
+}
+.info-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.info-card .el-card__body {
+  /* padding: 20px; */
+  position: relative;
+}
+
+.info-header {
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.info-tabs {
+  border: none !important;
+}
+
+.info-tabs .el-tabs__header {
+  margin: 0 !important;
+  border: none !important;
+}
+
+.info-tabs .el-tabs__nav {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.info-tabs .el-tabs__active-bar {
+  background-color: #409EFF !important;
+}
+
+.info-tabs .el-tabs__item {
+  color: #666 !important;
+  font-size: 14px;
+  padding: 0 20px;
+  height: 36px;
+  line-height: 36px;
+}
+
+.info-tabs .el-tabs__item.is-active {
+  color: #409EFF !important;
+  font-weight: bold;
+}
+
+.info-list {
+  padding: 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.info-item i {
+  color: #409EFF;
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.info-title {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.info-date {
+  font-size: 12px;
+  color: #999;
+  margin-left: 10px;
+}
+
+.more-link {
+  text-align: right;
+  margin-top: 15px;
+  color: #409EFF;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* 公司导航卡片 */
+.nav-card {
+  flex: 2;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.nav-card .el-card__body {
+  padding: 20px;
+  position: relative;
+}
+
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  width: 100%;
+  position: relative;
+}
+
+.nav-input {
+  position: absolute; 
+  width: 200px; 
+  z-index: 10; 
+  right: 25px; 
+  top: 4px;
+  .el-input__inner {
+    border-radius: 16px;
+  }
+}
+
+
+.nav-tabs {
+  flex: 1;
+  border: none !important;
+}
+
+.nav-tabs .el-tabs__header {
+  margin: 0 !important;
+  border: none !important;
+}
+
+.nav-tabs .el-tabs__nav {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.nav-tabs .el-tabs__active-bar {
+  background-color: #409EFF !important;
+}
+
+.nav-tabs .el-tabs__item {
+  color: #666 !important;
+  font-size: 14px;
+  padding: 0 20px;
+  height: 36px;
+  line-height: 36px;
+}
+
+.nav-tabs .el-tabs__item.is-active {
+  color: #409EFF !important;
+  font-weight: bold;
+}
+.info-icon {
+  display: inline-block;
+  width: 25px;
+  height: 20px;
+  margin: -2px 4px 0 0;
+  vertical-align: middle;
+  background-image: url('./assets/1.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.tab-icon {
+  display: inline-block;
+  width: 25px;
+  height: 20px;
+  margin: -2px 4px 0 0;
+  vertical-align: middle;
+  background-image: url('./assets/2.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.nav-tabs .el-tabs__item.is-active .tab-icon {
+  background-image: url('./assets/1.png');
+}
+
+.nav-items {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  row-gap: 30px;
+  padding: 20px 0;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 10px;
+}
+
+.nav-item:hover {
+  background-color: rgba(64, 158, 255, 0.1);
+  border-radius: 8px;
+}
+
+.nav-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.icon-blue {
+  background: linear-gradient(135deg, #409EFF, #66b1ff);
+}
+
+.icon-orange {
+  background: linear-gradient(135deg, #f7ba2a, #ffc53d);
+}
+
+.icon-green {
+  background: linear-gradient(135deg, #67c23a, #85ce61);
+}
+
+.nav-name {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .cards-section {
+    width: 95%;
+  }
+  
+  .nav-items {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .cards-section {
+    flex-direction: column;
+  }
+  
+  .nav-items {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .main-content {
+    padding-top: 80px;
+  }
+  
+  .time {
+    font-size: 3.5em;
+  }
+}
+
+@media (max-width: 768px) {
+  .time {
+    font-size: 3em;
+  }
+  
+  .search-section {
+    width: 90%;
+  }
+  
+  .nav-items {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .main-content {
+    padding-top: 60px;
+  }
+  
+  .cards-section {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .time {
+    font-size: 2.5em;
+  }
+  
+  .date {
+    font-size: 1em;
+  }
+  
+  .nav-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .main-content {
+    padding-top: 40px;
+  }
+  
+  .user-info {
+    font-size: 12px;
+  }
+}
+
+/* 确保页面在不同屏幕尺寸下等比例缩放 */
+@media (max-width: 360px) {
+  .time {
+    font-size: 2em;
+  }
+  
+  .nav-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .nav-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .nav-name {
+    font-size: 10px;
+  }
+}
+</style>
