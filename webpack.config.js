@@ -6,7 +6,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    homepage: './src/main.js'
+    homepage: './src/main.js',
+    search: './src/search.js'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -58,6 +59,11 @@ module.exports = {
       template: './public/index.html',
       filename: 'homepage.html',
       chunks: ['homepage']
+    }),
+    new HtmlWebpackPlugin({
+      template: './public/index.html',
+      filename: 'search.html',
+      chunks: ['search']
     }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css'

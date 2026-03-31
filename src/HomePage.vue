@@ -28,7 +28,8 @@
           v-model="searchText"
           placeholder="输入搜索内容"
           prefix-icon="el-icon-search"
-          style="width: 760px;">
+          style="width: 760px;"
+          @keyup.enter="search">
         </el-input>
         <el-button class="search-button" @click="search">搜索</el-button>
       </div>
@@ -186,11 +187,7 @@ export default {
       return `${lunarMonth}${lunarDay}`;
     },
     search() {
-      if (this.searchText) {
-        this.$message.success(`搜索内容：${this.searchText}`);
-      } else {
-        this.$message.warning('请输入搜索内容');
-      }
+      window.location.href = `search.html?q=${encodeURIComponent(this.searchText)}`;
     }
   }
 }
