@@ -38,8 +38,10 @@
       </div>
       
       <el-loading v-loading="loading" :fullscreen="false" text="搜索中..."></el-loading>
-      
-      <div class="app-card" v-for="(app, index) in searchResults" :key="index">
+      <div v-if="activeTab === 'knowledge'">
+
+      </div>
+      <div class="app-card" v-for="(app, index) in searchResults" :key="index" v-else>
         <div class="app-icon">
           <img :src="app.logoImage" :alt="app.showName" />
         </div>
@@ -78,16 +80,13 @@ export default {
     if (query) {
       this.searchQuery = query;
       // 自动执行搜索
-      if (activeTab === 'knowledge') {
-        this.knowledgeSearch()
-      } else {
-        this.mallSearch();
-      }
+      this.knowledgeSearch()
+      this.mallSearch();
     }
   },
   methods: {
     knowledgeSearch() {
-      
+
     },
     mallSearch() {
       if (this.searchQuery) {
