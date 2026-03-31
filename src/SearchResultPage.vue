@@ -41,19 +41,21 @@
       <div v-if="activeTab === 'knowledge'">
 
       </div>
-      <div class="app-card" v-for="(app, index) in searchResults" :key="index" v-else>
-        <div class="app-icon">
-          <img :src="app.logoImage" :alt="app.showName" />
-        </div>
-        <div class="app-info">
-          <div class="app-header">
-            <h3 class="app-name">{{ app.showName }}</h3>
-            <div class="app-score">{{ app.averageScore }}分</div>
+      <div class="app-grid" v-else>
+        <div class="app-card" v-for="(app, index) in searchResults" :key="index">
+          <div class="app-icon">
+            <img :src="app.logoImage" :alt="app.showName" />
           </div>
-          <p class="app-desc">{{ app.recommend }}</p>
-          <div class="app-footer">
-            <span class="app-download-count">下载量: {{ app.downNum }}</span>
-            <el-button type="primary" size="small" class="download-button">下载</el-button>
+          <div class="app-info">
+            <div class="app-header">
+              <h3 class="app-name" :title="app.showName">{{ app.showName }}</h3>
+              <div class="app-score">{{ app.averageScore }}分</div>
+            </div>
+            <p class="app-desc" :title="app.recommend">{{ app.recommend }}</p>
+            <div class="app-footer">
+              <span class="app-download-count">下载量: {{ app.downNum }}</span>
+              <el-button type="primary" size="small" class="download-button" plain>下载</el-button>
+            </div>
           </div>
         </div>
       </div>
@@ -65,7 +67,7 @@
 export default {
   data() {
     return {
-      activeTab: 'knowledge',
+      activeTab: 'softMall',
       searchQuery: '',
       searchResults: [],
       resultCount: 0,
@@ -122,6 +124,24 @@ export default {
       //     });
       // }
       this.searchResults = [{
+        appId: "1213",
+        appUrl: null,
+        averageScore: "3.9",
+        classify: "应用",
+        downNum: 128548,
+        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+        recommend: "谷歌浏览器是一款...",
+        showName: "谷歌浏览器64位"
+      },{
+        appId: "1213",
+        appUrl: null,
+        averageScore: "3.9",
+        classify: "应用",
+        downNum: 128548,
+        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+        recommend: "谷歌浏览器是一款...",
+        showName: "谷歌浏览器64位"
+      },{
         appId: "1213",
         appUrl: null,
         averageScore: "3.9",
@@ -237,7 +257,6 @@ export default {
 .search-results {
   max-width: 800px;
   margin-left: 130px;
-  padding: 0 20px;
 }
 
 .result-stats {
@@ -246,20 +265,40 @@ export default {
   margin-bottom: 20px;
 }
 
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 0 20px;
+}
+
 .app-card {
   background-color: #ffffff;
-  padding: 20px;
-  margin-bottom: 15px;
+  padding: 25px 15px 0;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
-  gap: 20px;
+  /* flex-direction: column; */
+  align-items: center;
+  text-align: center;
+  position: relative;
+  margin-top: 30px;
+  aspect-ratio: 1;
 }
 
 .app-icon {
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-icon img {
@@ -270,54 +309,72 @@ export default {
 }
 
 .app-info {
-  flex: 1;
+  width: 100%;
+  height: calc(100% - 35px);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .app-name {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
 }
 
 .app-score {
-  font-size: 14px;
+  font-size: 12px;
   color: #ff6700;
   font-weight: 500;
 }
 
 .app-desc {
-  margin: 0 0 15px 0;
-  font-size: 14px;
-  color: #666;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #999;
   line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-align: left;
 }
 
 .app-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .app-download-count {
-  font-size: 12px;
+  font-size: 11px;
   color: #999;
 }
 
 .download-button {
-  font-size: 12px;
-  padding: 4px 16px;
-  border-radius: 12px;
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 4px;
+}
+
+.el-button--primary.is-plain {
+  color: #409EFF;
+  background: #ffffff;
+  border-color: #b3d8ff;
 }
 
 </style>
