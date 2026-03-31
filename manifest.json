@@ -4,6 +4,9 @@
   "version": "1.0",
   "description": "Replace browser home page with a new demo page",
   "permissions": [],
+  "host_permissions": [
+    "http://25.219.129.212:19010/*"
+  ],
   "chrome_url_overrides": {
     "newtab": "homepage.html"
   }

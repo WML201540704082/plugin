@@ -37,12 +37,23 @@
         找到相关结果约 {{ resultCount }} 个，用时 {{ searchTime }} 秒
       </div>
       
-      <div class="result-item" v-for="(result, index) in searchResults" :key="index">
-        <h3 class="result-title">
-          <a href="#" @click.prevent="navigateToUrl(result.url)">{{ result.title }}</a>
-        </h3>
-        <div class="result-url">{{ result.url }}</div>
-        <div class="result-content">{{ result.content }}</div>
+      <el-loading v-loading="loading" :fullscreen="false" text="搜索中..."></el-loading>
+      
+      <div class="app-card" v-for="(app, index) in searchResults" :key="index">
+        <div class="app-icon">
+          <img :src="app.logoImage" :alt="app.showName" />
+        </div>
+        <div class="app-info">
+          <div class="app-header">
+            <h3 class="app-name">{{ app.showName }}</h3>
+            <div class="app-score">{{ app.averageScore }}分</div>
+          </div>
+          <p class="app-desc">{{ app.recommend }}</p>
+          <div class="app-footer">
+            <span class="app-download-count">下载量: {{ app.downNum }}</span>
+            <el-button type="primary" size="small" class="download-button">下载</el-button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -54,35 +65,10 @@ export default {
     return {
       activeTab: 'knowledge',
       searchQuery: '',
-      searchResults: [
-        {
-          title: '百度一下，你就知道',
-          url: 'https://www.baidu.com',
-          content: '全球最大的中文搜索引擎、致力于让网民更便捷地获取信息，找到所求。百度超过千亿的中文网页数据库，可以瞬间找到相关的搜索结果。'
-        },
-        {
-          title: '百度百科',
-          url: 'https://baike.baidu.com',
-          content: '百度百科是百度公司推出的一部内容开放、自由的网络百科全书，其测试版于2006年4月20日上线，正式版在2008年4月21日发布。'
-        },
-        {
-          title: '百度地图',
-          url: 'https://map.baidu.com',
-          content: '百度地图是百度提供的一项网络地图服务，覆盖了国内近400个城市，主要功能包括：地图浏览、地点搜索、路线查询、公交换乘、驾车导航、实时路况等。'
-        },
-        {
-          title: '百度贴吧',
-          url: 'https://tieba.baidu.com',
-          content: '百度贴吧是百度推出的互联网产品之一，主要应用于用户之间的交流和信息分享，是全球最大的中文社区。'
-        },
-        {
-          title: '百度知道',
-          url: 'https://zhidao.baidu.com',
-          content: '百度知道是百度推出的互动式知识问答分享平台，于2005年6月21日发布上线，2012年3月31日发布百度知道台湾版。'
-        }
-      ],
-      resultCount: 12300000,
-      searchTime: 0.12
+      searchResults: [],
+      resultCount: 0,
+      searchTime: 0.12,
+      loading: false
     }
   },
   mounted() {
@@ -91,16 +77,37 @@ export default {
     const query = urlParams.get('q');
     if (query) {
       this.searchQuery = query;
+      // 自动执行搜索
+      this.performSearch();
     }
   },
   methods: {
     performSearch() {
       if (this.searchQuery) {
-        // 模拟搜索延迟
-        setTimeout(() => {
-          // 这里可以添加实际的搜索逻辑
-          console.log('搜索内容:', this.searchQuery);
-        }, 500);
+        this.loading = true;
+        // 调用API
+        const apiUrl = `http://25.219.129.212:19010/prod-api/msdp-appstore/web/application/list?secondClassify=&sort=0&pageSize=20&pageNum=1&showName=${encodeURIComponent(this.searchQuery)}`;
+        fetch(apiUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.code === 200) {
+              this.searchResults = data.data.records;
+              this.resultCount = data.data.total;
+            } else {
+              throw new Error(`API error! code: ${data.code}, message: ${data.msg}`);
+            }
+          })
+          .catch(error => {
+            console.error('API调用失败:', error);
+          })
+          .finally(() => {
+            this.loading = false;
+          });
       }
     },
     navigateToUrl(url) {
@@ -189,38 +196,78 @@ export default {
   margin-bottom: 20px;
 }
 
-.result-item {
+.app-card {
   background-color: #ffffff;
   padding: 20px;
   margin-bottom: 15px;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 20px;
 }
 
-.result-title {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  font-weight: normal;
+.app-icon {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
 }
 
-.result-title a {
-  color: #1a0dab;
-  text-decoration: none;
+.app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
-.result-title a:hover {
-  text-decoration: underline;
+.app-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.result-url {
-  color: #006621;
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.app-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.app-score {
   font-size: 14px;
-  margin-bottom: 8px;
+  color: #ff6700;
+  font-weight: 500;
 }
 
-.result-content {
-  color: #545454;
+.app-desc {
+  margin: 0 0 15px 0;
   font-size: 14px;
-  line-height: 1.5;
+  color: #666;
+  line-height: 1.4;
 }
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-download-count {
+  font-size: 12px;
+  color: #999;
+}
+
+.download-button {
+  font-size: 12px;
+  padding: 4px 16px;
+  border-radius: 12px;
+}
+
 </style>
