@@ -33,7 +33,7 @@
 
     <!-- 搜索结果 -->
     <div class="search-results">
-      <div class="result-stats">
+      <div class="result-stats" v-if="searchTime">
         找到相关结果约 {{ resultCount }} 个，用时 {{ searchTime }} 秒
       </div>
       
@@ -67,7 +67,7 @@ export default {
       searchQuery: '',
       searchResults: [],
       resultCount: 0,
-      searchTime: 0.12,
+      searchTime: 0,
       loading: false
     }
   },
@@ -78,14 +78,21 @@ export default {
     if (query) {
       this.searchQuery = query;
       // 自动执行搜索
-      this.performSearch();
+      if (activeTab === 'knowledge') {
+        this.knowledgeSearch()
+      } else {
+        this.mallSearch();
+      }
     }
   },
   methods: {
-    performSearch() {
+    knowledgeSearch() {
+      
+    },
+    mallSearch() {
       if (this.searchQuery) {
         this.loading = true;
-        // 调用API
+        const startTime = Date.now();
         const apiUrl = `http://25.219.129.212:19010/prod-api/msdp-appstore/web/application/list?secondClassify=&sort=0&pageSize=20&pageNum=1&showName=${encodeURIComponent(this.searchQuery)}`;
         fetch(apiUrl)
           .then(response => {
@@ -106,6 +113,8 @@ export default {
             console.error('API调用失败:', error);
           })
           .finally(() => {
+            const endTime = Date.now();
+            this.searchTime = ((endTime - startTime) / 1000).toFixed(2);
             this.loading = false;
           });
       }
