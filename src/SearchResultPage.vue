@@ -99,95 +99,95 @@ export default {
 
     },
     mallSearch() {
-      // if (this.searchQuery) {
-      //   this.loading = true;
-      //   const startTime = Date.now();
-      //   const apiUrl = `http://25.219.129.212:19010/prod-api/msdp-appstore/web/application/list?secondClassify=&sort=0&pageSize=20&pageNum=1&showName=${encodeURIComponent(this.searchQuery)}`;
-      //   fetch(apiUrl)
-      //     .then(response => {
-      //       if (!response.ok) {
-      //         throw new Error(`HTTP error! status: ${response.status}`);
-      //       }
-      //       return response.json();
-      //     })
-      //     .then(data => {
-      //       if (data.code === 200) {
-      //         this.searchResults = data.data.records;
-      //         this.resultCount = data.data.total;
-      //       } else {
-      //         throw new Error(`API error! code: ${data.code}, message: ${data.msg}`);
-      //       }
-      //     })
-      //     .catch(error => {
-      //       console.error('API调用失败:', error);
-      //     })
-      //     .finally(() => {
-      //       const endTime = Date.now();
-      //       this.searchTime = ((endTime - startTime) / 1000).toFixed(2);
-      //       this.loading = false;
-      //     });
-      // }
-      this.searchResults = [{
-        appId: "1213",
-        packagePath: "234",
-        appUrl: null,
-        averageScore: "3.9",
-        classify: "应用",
-        downNum: 128548,
-        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
-        recommend: "谷歌浏览器是一款...",
-        showName: "谷歌浏览器64位"
-      },{
-        appId: "1213",
-        packagePath: "234",
-        appUrl: null,
-        averageScore: "3.9",
-        classify: "应用",
-        downNum: 128548,
-        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
-        recommend: "谷歌浏览器是一款...",
-        showName: "谷歌浏览器64位"
-      },{
-        appId: "1213",
-        packagePath: "234",
-        appUrl: null,
-        averageScore: "3.9",
-        classify: "应用",
-        downNum: 128548,
-        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
-        recommend: "谷歌浏览器是一款...",
-        showName: "谷歌浏览器64位"
-      },{
-        appId: "1213",
-        packagePath: "234",
-        appUrl: null,
-        averageScore: "3.9",
-        classify: "应用",
-        downNum: 128548,
-        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
-        recommend: "谷歌浏览器是一款...",
-        showName: "谷歌浏览器64位"
-      },{
-        appId: "1213",
-        packagePath: "234",
-        appUrl: null,
-        averageScore: "3.9",
-        classify: "应用",
-        downNum: 128548,
-        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
-        recommend: "谷歌浏览器是一款...",
-        showName: "谷歌浏览器64位"
-      },{
-        appId: "1213",
-        packagePath: "234",
-        appUrl: null,
-        averageScore: "3.9",
-        classify: "应用",
-        downNum: 128548,
-        logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
-        recommend: "谷歌浏览器是一款...",
-        showName: "谷歌浏览器64位"
-      }];
+      if (this.searchQuery) {
+        this.loading = true;
+        const startTime = Date.now();
+        const apiUrl = `http://25.219.129.212:19010/prod-api/msdp-appstore/web/application/list?secondClassify=&sort=0&pageSize=20&pageNum=1&showName=${encodeURIComponent(this.searchQuery)}`;
+        fetch(apiUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.code === 200) {
+              this.searchResults = data.data.records;
+              this.resultCount = data.data.total;
+            } else {
+              throw new Error(`API error! code: ${data.code}, message: ${data.msg}`);
+            }
+          })
+          .catch(error => {
+            console.error('API调用失败:', error);
+          })
+          .finally(() => {
+            const endTime = Date.now();
+            this.searchTime = ((endTime - startTime) / 1000).toFixed(2);
+            this.loading = false;
+          });
+      }
+      // this.searchResults = [{
+      //   appId: "1213",
+      //   packagePath: "234",
+      //   appUrl: null,
+      //   averageScore: "3.9",
+      //   classify: "应用",
+      //   downNum: 128548,
+      //   logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+      //   recommend: "谷歌浏览器是一款...",
+      //   showName: "谷歌浏览器64位"
+      // },{
+      //   appId: "1213",
+      //   packagePath: "234",
+      //   appUrl: null,
+      //   averageScore: "3.9",
+      //   classify: "应用",
+      //   downNum: 128548,
+      //   logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+      //   recommend: "谷歌浏览器是一款...",
+      //   showName: "谷歌浏览器64位"
+      // },{
+      //   appId: "1213",
+      //   packagePath: "234",
+      //   appUrl: null,
+      //   averageScore: "3.9",
+      //   classify: "应用",
+      //   downNum: 128548,
+      //   logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+      //   recommend: "谷歌浏览器是一款...",
+      //   showName: "谷歌浏览器64位"
+      // },{
+      //   appId: "1213",
+      //   packagePath: "234",
+      //   appUrl: null,
+      //   averageScore: "3.9",
+      //   classify: "应用",
+      //   downNum: 128548,
+      //   logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+      //   recommend: "谷歌浏览器是一款...",
+      //   showName: "谷歌浏览器64位"
+      // },{
+      //   appId: "1213",
+      //   packagePath: "234",
+      //   appUrl: null,
+      //   averageScore: "3.9",
+      //   classify: "应用",
+      //   downNum: 128548,
+      //   logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+      //   recommend: "谷歌浏览器是一款...",
+      //   showName: "谷歌浏览器64位"
+      // },{
+      //   appId: "1213",
+      //   packagePath: "234",
+      //   appUrl: null,
+      //   averageScore: "3.9",
+      //   classify: "应用",
+      //   downNum: 128548,
+      //   logoImage: "chrome-extension://gogfcdlbjigmaaccpkigmikceimdpgam/images/lr-soft..png",
+      //   recommend: "谷歌浏览器是一款...",
+      //   showName: "谷歌浏览器64位"
+      // }];
       this.resultCount = 1;
     },
     navigateToUrl(url) {
@@ -217,7 +217,7 @@ export default {
         // 5. 构建下载URL
         const appId = app.appId;
         const ossKey = app.packagePath;
-        const downloadUrl = this.mallUrl + `/msdp-fileserver/oss/secureDownoad/${appId}?ossKey=${ossKey}&nonce=${nonce}&sign=${sign}&timestamp=${timestamp}`;
+        const downloadUrl = this.mallUrl + `msdp-fileserver/oss/secureDownload/${appId}?ossKey=${ossKey}&nonce=${nonce}&sign=${sign}&timestamp=${timestamp}`;
         
         // 6. 打开下载链接
         window.open(downloadUrl, '_blank');
