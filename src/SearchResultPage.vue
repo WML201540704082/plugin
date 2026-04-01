@@ -9,8 +9,8 @@
         <el-input
           v-model="searchQuery"
           placeholder="输入搜索内容"
-          style="width: 748px;height: 45px;border-radius: 22px;border-right: none;"
-          @keyup.enter="performSearch"
+          style="width: 848px;height: 45px;border-radius: 22px;border-right: none;"
+          @keyup.enter="performSearch"                            
         >
           <el-button 
             slot="append" 
@@ -34,7 +34,7 @@
     <!-- 搜索结果 -->
     <div class="search-results">
       <div class="result-stats" v-if="searchTime">
-        找到相关结果约 {{ resultCount }} 个，用时 {{ searchTime }} 秒
+        找到相关结果 {{ resultCount }} 个，用时 {{ searchTime }} 秒
       </div>
       
       <el-loading v-loading="loading" :fullscreen="false" text="搜索中..."></el-loading>
@@ -321,19 +321,22 @@ export default {
 }
 
 .search-results {
-  max-width: 800px;
+  max-width: 900px;
   margin-left: 130px;
 }
 
 .result-stats {
   color: #666;
   font-size: 13px;
-  margin-bottom: 20px;
+  margin-bottom: -15px;
+  position: relative;
+  left: 650px;
+  top: -35px;
 }
 
 .app-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(233px, 1fr));
   gap: 20px;
   padding: 0 20px;
 }
@@ -344,12 +347,13 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
-  /* flex-direction: column; */
+  flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
   margin-top: 30px;
-  aspect-ratio: 1;
+  width: 225px;
+  height: 215px;
   border: 1px solid #ccc;
 }
 
@@ -371,13 +375,13 @@ export default {
 .app-icon img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
   border-radius: 8px;
 }
 
 .app-info {
   width: 100%;
-  height: calc(100% - 35px);
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
