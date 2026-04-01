@@ -15,7 +15,7 @@
           <el-button 
             slot="append" 
             @click="performSearch"
-            style="background: linear-gradient(135deg, rgb(0, 197, 134) 0%, rgb(97, 224, 181) 100%);
+            style="background: linear-gradient(135deg, #409EFF 0%, #80bbf5);
                   color: #ffffff;font-size: 15px;font-weight: 500;border-radius: 10px;height: 40px;padding: 13px;">
             智能搜索
           </el-button>
@@ -54,7 +54,7 @@
             <p class="app-desc" :title="app.recommend">{{ app.recommend }}</p>
             <div class="app-footer">
               <span class="app-download-count">下载量: {{ app.downNum }}</span>
-              <el-button type="primary" size="small" class="download-button" plain>下载</el-button>
+              <el-button type="primary" size="small" class="download-button" plain @click="downloadApp(app)">下载</el-button>
             </div>
           </div>
         </div>
@@ -64,6 +64,8 @@
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
+import smCrypto from 'sm-crypto';
 export default {
   data() {
     return {
@@ -72,7 +74,9 @@ export default {
       searchResults: [],
       resultCount: 0,
       searchTime: 0,
-      loading: false
+      loading: false,
+      mallUrl: 'http://25.219.129.212:19010/prod-api/',
+      suid: ''
     }
   },
   mounted() {
@@ -125,6 +129,7 @@ export default {
       // }
       this.searchResults = [{
         appId: "1213",
+        packagePath: "234",
         appUrl: null,
         averageScore: "3.9",
         classify: "应用",
@@ -134,6 +139,7 @@ export default {
         showName: "谷歌浏览器64位"
       },{
         appId: "1213",
+        packagePath: "234",
         appUrl: null,
         averageScore: "3.9",
         classify: "应用",
@@ -143,6 +149,7 @@ export default {
         showName: "谷歌浏览器64位"
       },{
         appId: "1213",
+        packagePath: "234",
         appUrl: null,
         averageScore: "3.9",
         classify: "应用",
@@ -152,6 +159,7 @@ export default {
         showName: "谷歌浏览器64位"
       },{
         appId: "1213",
+        packagePath: "234",
         appUrl: null,
         averageScore: "3.9",
         classify: "应用",
@@ -161,6 +169,7 @@ export default {
         showName: "谷歌浏览器64位"
       },{
         appId: "1213",
+        packagePath: "234",
         appUrl: null,
         averageScore: "3.9",
         classify: "应用",
@@ -170,6 +179,7 @@ export default {
         showName: "谷歌浏览器64位"
       },{
         appId: "1213",
+        packagePath: "234",
         appUrl: null,
         averageScore: "3.9",
         classify: "应用",
@@ -182,7 +192,61 @@ export default {
     },
     navigateToUrl(url) {
       window.open(url, '_blank');
-    }
+    },
+    async downloadApp(app) {
+      if (!app.appId || !app.packagePath) {
+        this.$message.warning('应用信息不完整，无法下载');
+        return;
+      }
+      
+      try {
+        // 1. 获取suid
+        if (!this.suid) {
+          await this.getSuid();
+        }
+        
+        // 2. 生成nonce
+        const nonce = uuidv4();
+
+        // 3. 计算timestamp
+        const timestamp = parseInt((new Date()).getTime());
+        
+        // 4. 计算sign
+        const sign = this.sm3Hash(timestamp + nonce + this.suid);
+        
+        // 5. 构建下载URL
+        const appId = app.appId;
+        const ossKey = app.packagePath;
+        const downloadUrl = this.mallUrl + `/msdp-fileserver/oss/secureDownoad/${appId}?ossKey=${ossKey}&nonce=${nonce}&sign=${sign}&timestamp=${timestamp}`;
+        
+        // 6. 打开下载链接
+        window.open(downloadUrl, '_blank');
+      } catch (error) {
+        console.error('下载失败:', error);
+        this.$message.error('下载失败，请稍后重试');
+      }
+    },
+    async getSuid() {
+      try {
+        const response = await fetch(this.mallUrl + 'security/suid');
+        if (!response.ok) {
+          throw new Error('获取suid失败');
+        }
+        const data = await response.json();
+        if (data.code === 200) {
+          this.suid = data.data.suid;
+        } else {
+          throw new Error('获取suid失败');
+        }
+      } catch (error) {
+        console.error('获取suid失败:', error);
+        throw error;
+      }
+    },
+    sm3Hash(text) {
+      const sm3 = smCrypto.sm3;
+      return sm3(text);
+    },
   }
 }
 </script>
@@ -212,7 +276,8 @@ export default {
 
 :deep .el-input__inner {
   height: 45px;
-  border: 1px solid rgb(0, 197, 134);
+  /* border: 1px solid rgb(0, 197, 134); */
+  border: 1px solid #409EFF;
   border-right: 0;
 }
 
@@ -223,8 +288,9 @@ export default {
 :deep .el-input-group__append, .el-input-group__prepend {
   background-color: #ffffff;
   color: #ffffff;
-  padding-right: 25px;
-  border: 1px solid rgb(0, 197, 134);
+  padding-right: 23px;
+  /* border: 1px solid rgb(0, 197, 134); */
+  border: 1px solid #409EFF;
   border-left: 0;
 }
 .nav-tabs {
@@ -284,6 +350,7 @@ export default {
   position: relative;
   margin-top: 30px;
   aspect-ratio: 1;
+  border: 1px solid #ccc;
 }
 
 .app-icon {

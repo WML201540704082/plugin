@@ -7,8 +7,10 @@
     "dev": "webpack --mode development --watch"
   },
   "dependencies": {
-    "vue": "^2.6.14",
-    "element-ui": "^2.15.14"
+    "element-ui": "^2.15.14",
+    "sm-crypto": "^0.4.0",
+    "uuid": "^13.0.0",
+    "vue": "^2.6.14"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
