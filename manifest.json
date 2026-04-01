@@ -5,7 +5,9 @@
   "description": "Replace browser home page with a new demo page",
   "permissions": [],
   "host_permissions": [
-    "http://25.219.129.212:19010/*"
+    "http://25.219.129.212:19010/*",
+    "http://27.41.17.135:18084/*",
+    "http://25.41.34.27/*"
   ],
   "chrome_url_overrides": {
     "newtab": "homepage.html"

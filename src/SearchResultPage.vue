@@ -39,7 +39,41 @@
       
       <el-loading v-loading="loading" :fullscreen="false" text="搜索中..."></el-loading>
       <div v-if="activeTab === 'knowledge'">
-
+        <div v-if="!loading && (knowledgeResults.length > 0 || resourceResults.length > 0)">
+          <!-- 知识列表 -->
+          <div v-if="knowledgeResults.length > 0" class="knowledge-section">
+            <h3 class="section-title">知识列表</h3>
+            <div class="knowledge-list">
+              <div v-for="(item, index) in knowledgeResults" :key="'knowledge-' + index" class="knowledge-item">
+                <h4 class="knowledge-title">{{ item.title || item.name || '无标题' }}</h4>
+                <p class="knowledge-desc">{{ item.description || item.summary || item.content || '暂无描述' }}</p>
+                <div class="knowledge-meta">
+                  <span v-if="item.createTime" class="knowledge-time">创建时间: {{ item.createTime }}</span>
+                  <span v-if="item.updateTime" class="knowledge-time">更新时间: {{ item.updateTime }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 资源列表 -->
+          <div v-if="resourceResults.length > 0" class="resource-section">
+            <h3 class="section-title">资源列表</h3>
+            <div class="resource-list">
+              <div v-for="(item, index) in resourceResults" :key="'resource-' + index" class="resource-item">
+                <h4 class="resource-title">{{ item.title || item.name || '无标题' }}</h4>
+                <p class="resource-desc">{{ item.description || item.summary || item.content || '暂无描述' }}</p>
+                <div class="resource-meta">
+                  <span v-if="item.createTime" class="resource-time">创建时间: {{ item.createTime }}</span>
+                  <span v-if="item.updateTime" class="resource-time">更新时间: {{ item.updateTime }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div v-if="!loading && knowledgeResults.length === 0 && resourceResults.length === 0" class="no-results">
+          暂无搜索结果
+        </div>
       </div>
       <div class="app-grid" v-else>
         <div class="app-card" v-for="(app, index) in searchResults" :key="index">
@@ -72,6 +106,8 @@ export default {
       activeTab: 'softMall',
       searchQuery: '',
       searchResults: [],
+      knowledgeResults: [],
+      resourceResults: [],
       resultCount: 0,
       searchTime: 0,
       loading: false,
@@ -95,8 +131,76 @@ export default {
       this.knowledgeSearch()
       this.mallSearch();
     },
-    knowledgeSearch() {
-
+    async knowledgeSearch() {
+      if (!this.searchQuery) {
+        return;
+      }
+      
+      try {
+        const startTime = Date.now();
+        this.loading = true;
+        
+        // 1. 先获取token
+        const tokenUrl = 'http://25.41.34.27/idevelop-auth/token';
+        const tokenData = new FormData();
+        tokenData.append('account', 'ceshi_yunwei1');
+        tokenData.append('password', 'Asdzxc@123');
+        tokenData.append('tenantId', '000000');
+        
+        const tokenResponse = await fetch(tokenUrl, {
+          method: 'POST',
+          body: tokenData
+        });
+        
+        if (!tokenResponse.ok) {
+          throw new Error('获取token失败');
+        }
+        
+        const tokenResult = await tokenResponse.json();
+        const token = tokenResult.data?.token || tokenResult.token;
+        
+        if (!token) {
+          throw new Error('未获取到token');
+        }
+        
+        // 2. 用token调用两个接口
+        const headers = {
+          'Idevelop-Auth': `bearer ${token}`
+        };
+        
+        const encodedQuery = encodeURIComponent(this.searchQuery);
+        
+        // 并行调用两个接口
+        const [knowledgeResponse, resourceResponse] = await Promise.all([
+          fetch(`http://25.41.34.27/api/idevelop-control/knowledge/page?current=1&size=20&tag=0&resourceCondition=${encodedQuery}&view=0`, {
+            method: 'GET',
+            headers: headers
+          }),
+          fetch(`http://25.41.34.27/api/idevelop-control/resource/list?current=1&size=20&tag=0&resourceCondition=${encodedQuery}`, {
+            method: 'GET',
+            headers: headers
+          })
+        ]);
+        
+        const knowledgeData = await knowledgeResponse.json();
+        const resourceData = await resourceResponse.json();
+        
+        // 保存结果
+        this.knowledgeResults = knowledgeData.data?.records || knowledgeData.records || [];
+        this.resourceResults = resourceData.data?.records || resourceData.records || [];
+        this.resultCount = this.knowledgeResults.length + this.resourceResults.length;
+        
+        const endTime = Date.now();
+        this.searchTime = ((endTime - startTime) / 1000).toFixed(2);
+        
+      } catch (error) {
+        console.error('知识搜索失败:', error);
+        this.knowledgeResults = [];
+        this.resourceResults = [];
+        this.resultCount = 0;
+      } finally {
+        this.loading = false;
+      }
     },
     mallSearch() {
       if (this.searchQuery) {
@@ -446,6 +550,76 @@ export default {
   color: #409EFF;
   background: #ffffff;
   border-color: #b3d8ff;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #409EFF;
+}
+
+.knowledge-section,
+.resource-section {
+  margin-bottom: 30px;
+}
+
+.knowledge-item,
+.resource-item {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.knowledge-title,
+.resource-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #409EFF;
+  margin: 0 0 10px 0;
+  cursor: pointer;
+}
+
+.knowledge-title:hover,
+.resource-title:hover {
+  text-decoration: underline;
+}
+
+.knowledge-desc,
+.resource-desc {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 12px 0;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.knowledge-meta,
+.resource-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: #999;
+}
+
+.knowledge-time,
+.resource-time {
+  display: inline-block;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 16px;
 }
 
 </style>
