@@ -140,16 +140,50 @@ export default {
         const startTime = Date.now();
         this.loading = true;
         
-        // 1. 先获取token
-        const tokenUrl = 'http://25.41.34.27/idevelop-auth/token';
-        const tokenData = new FormData();
-        tokenData.append('account', 'ceshi_yunwei1');
-        tokenData.append('password', 'Asdzxc@123');
-        tokenData.append('tenantId', '000000');
+        // 1. 先获取spuk和kid
+        const spukUrl = 'http://25.41.34.27/api/idevelop-auth/k';
+        const spukResponse = await fetch(spukUrl, {
+          method: 'GET'
+        });
         
-        const tokenResponse = await fetch(tokenUrl, {
+        if (!spukResponse.ok) {
+          throw new Error('获取spuk失败');
+        }
+        
+        const spukResult = await spukResponse.json();
+        const spuk = spukResult.data?.idevelop_spuk;
+        const kid = spukResult.data?.idevelop_kid;
+        
+        if (!spuk || !kid) {
+          throw new Error('未获取到完整的spuk信息');
+        }
+        
+        // 2. 生成SM2密钥对并加密cpuk
+        const keyPair = this.createSM2Key();
+        const cpuk = keyPair.publicKey;
+        const enCpuk = this.encryptBySM2(cpuk, spuk);
+        
+        // 3. 加密密码
+        const password = 'Asdzxc@123';
+        const encryptedPassword = this.encryptBySM2(password, spuk);
+        
+        // 3. 获取token
+        const tokenUrl = 'http://25.41.34.27/api/idevelop-auth/token';
+        const queryParams = new URLSearchParams({
+          grantType: 'password',
+          tenantId: '000000',
+          account: 'ceshi_yunwei1',
+          password: encryptedPassword,
+          type: 'account'
+        });
+        
+        const tokenResponse = await fetch(`${tokenUrl}?${queryParams.toString()}`, {
           method: 'POST',
-          body: tokenData
+          headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'idevelop_enCpuk': enCpuk,
+            'idevelop_kid': kid,
+          }
         });
         
         if (!tokenResponse.ok) {
@@ -350,6 +384,15 @@ export default {
     sm3Hash(text) {
       const sm3 = smCrypto.sm3;
       return sm3(text);
+    },
+    encryptBySM2(data, puk) {
+      const sm2 = smCrypto.sm2;
+      return sm2.doEncrypt(data, puk, 1);
+    },
+    createSM2Key() {
+      let sm2 = smCrypto.sm2;
+      let keypari = sm2.generateKeyPairHex();
+      return keypari;
     },
   }
 }
