@@ -169,21 +169,20 @@ export default {
         
         // 3. 获取token
         const tokenUrl = 'http://25.41.34.27/api/idevelop-auth/token';
-        const queryParams = new URLSearchParams({
-          grantType: 'password',
-          tenantId: '000000',
-          account: 'ceshi_yunwei1',
-          password: encryptedPassword,
-          type: 'account'
-        });
+        const formData = new FormData();
+        formData.append('grantType', 'captcha');
+        formData.append('account', 'ceshi_yunwei1');
+        formData.append('password', encryptedPassword);
+        formData.append('tenantId', '000000');
         
-        const tokenResponse = await fetch(`${tokenUrl}?${queryParams.toString()}`, {
+        const tokenResponse = await fetch(tokenUrl, {
           method: 'POST',
           headers: {
-            'Accept': 'application/json, text/plain, */*',
+            'Authorization': 'Basic bmFydWk6bmFydWlfc2VjcmV0',
             'idevelop_enCpuk': enCpuk,
             'idevelop_kid': kid,
-          }
+          },
+          body: formData
         });
         
         if (!tokenResponse.ok) {
@@ -191,14 +190,15 @@ export default {
         }
         
         const tokenResult = await tokenResponse.json();
-        const token = tokenResult.data?.token || tokenResult.token;
-        
+        const token = tokenResult.data.accessToken
+
         if (!token) {
           throw new Error('未获取到token');
         }
         
         // 2. 用token调用两个接口
         const headers = {
+          'Authorization': 'Basic bmFydWk6bmFydWlfc2VjcmV0',
           'Idevelop-Auth': `bearer ${token}`
         };
         
