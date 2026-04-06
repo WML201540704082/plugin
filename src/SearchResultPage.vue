@@ -42,29 +42,33 @@
         <div v-if="!loading && (knowledgeResults.length > 0 || resourceResults.length > 0)">
           <!-- 知识列表 -->
           <div v-if="knowledgeResults.length > 0" class="knowledge-section">
-            <h3 class="section-title">知识列表</h3>
+            <!-- <h3 class="section-title">知识列表</h3> -->
             <div class="knowledge-list">
               <div v-for="(item, index) in knowledgeResults" :key="'knowledge-' + index" class="knowledge-item">
-                <h4 class="knowledge-title">{{ item.title || item.name || '无标题' }}</h4>
-                <p class="knowledge-desc">{{ item.description || item.summary || item.content || '暂无描述' }}</p>
+                <h4 class="knowledge-title">{{ item.title || '无标题' }}</h4>
+                <p class="knowledge-desc">{{ item.problem || '暂无问题描述' }}</p>
+                <p class="knowledge-desc">{{ item.answer || '暂无解答' }}</p>
                 <div class="knowledge-meta">
                   <span v-if="item.createTime" class="knowledge-time">创建时间: {{ item.createTime }}</span>
-                  <span v-if="item.updateTime" class="knowledge-time">更新时间: {{ item.updateTime }}</span>
+                  <span v-if="item.deptName" class="knowledge-time">单位: {{ item.deptName }}</span>
                 </div>
               </div>
-            </div>
+            </div> 
           </div>
           
           <!-- 资源列表 -->
           <div v-if="resourceResults.length > 0" class="resource-section">
-            <h3 class="section-title">资源列表</h3>
+            <!-- <h3 class="section-title">资源列表</h3> -->
             <div class="resource-list">
               <div v-for="(item, index) in resourceResults" :key="'resource-' + index" class="resource-item">
-                <h4 class="resource-title">{{ item.title || item.name || '无标题' }}</h4>
-                <p class="resource-desc">{{ item.description || item.summary || item.content || '暂无描述' }}</p>
+                <h4 class="resource-title">
+                  <a v-if="item.path" :href="item.path" target="_blank">{{ item.title || '无标题' }}</a>
+                  <span v-else>{{ item.title || '无标题' }}</span>
+                </h4>
+                <p class="resource-desc">{{ item.content || '暂无描述' }}</p>
                 <div class="resource-meta">
                   <span v-if="item.createTime" class="resource-time">创建时间: {{ item.createTime }}</span>
-                  <span v-if="item.updateTime" class="resource-time">更新时间: {{ item.updateTime }}</span>
+                  <span v-if="item.viewCount" class="resource-time">浏览量: {{ item.viewCount }}</span>
                 </div>
               </div>
             </div>
@@ -103,11 +107,43 @@ import smCrypto from 'sm-crypto';
 export default {
   data() {
     return {
-      activeTab: 'softMall',
+      activeTab: 'knowledge',
       searchQuery: '',
       searchResults: [],
       knowledgeResults: [],
+      // knowledgeResults: [
+      //   {
+      //     answer: '123',
+      //     deptName: '国网青岛公司',
+      //     title: '关闭免费登录',
+      //     problem: '嗯嗯嗯嗯',
+      //     createTime: '2025-12-25 14:15:17',
+      //   },{
+      //     answer: '123',
+      //     deptName: '国网青岛公司',
+      //     title: '关闭免费登录',
+      //     problem: '嗯嗯嗯嗯',
+      //     createTime: '2025-12-25 14:15:17',
+      //   }
+      // ],
       resourceResults: [],
+      // resourceResults: [
+      //   {
+      //     answer: '123',
+      //     title: '关闭免费登录',
+      //     content: '看见啊点话费卡是否健康',
+      //     viewCount: 9,
+      //     createTime: '2025-12-25 14:15:17',
+      //     path: 'https://docs.google.com/viewer?url=https://raw.githubusercontent.com/mozilla/pdf.js/master/test/pdfs/basic.pdf'
+      //   },{
+      //     answer: '123',
+      //     title: '关闭免费登录',
+      //     content: '看见啊点话费卡是否健康',
+      //     viewCount: 9,
+      //     createTime: '2025-12-25 14:15:17',
+      //     path: 'https://docs.google.com/viewer?url=https://raw.githubusercontent.com/mozilla/pdf.js/master/test/pdfs/basic.pdf'
+      //   }
+      // ],
       resultCount: 0,
       searchTime: 0,
       loading: false,
@@ -121,15 +157,26 @@ export default {
     const query = urlParams.get('q');
     if (query) {
       this.searchQuery = query;
-      // 自动执行搜索
-      this.knowledgeSearch()
-      this.mallSearch();
+      this.knowledgeSearch();
+    }
+  },
+  watch: {
+    activeTab(newTab) {
+      if (newTab === 'knowledge' && this.searchQuery) {
+        this.knowledgeSearch();
+      }
+      if (newTab === 'softMall' && this.searchQuery) {
+        this.mallSearch();
+      }
     }
   },
   methods: {
     performSearch() {
-      this.knowledgeSearch()
-      this.mallSearch();
+      if (this.activeTab === 'knowledge') {
+        this.knowledgeSearch();
+      } else if (this.activeTab === 'softMall') {
+        this.mallSearch();
+      }
     },
     async knowledgeSearch() {
       if (!this.searchQuery) {
@@ -210,7 +257,7 @@ export default {
             method: 'GET',
             headers: headers
           }),
-          fetch(`http://25.41.34.27/api/idevelop-control/resource/list?current=1&size=20&tag=0&resourceCondition=${encodedQuery}`, {
+          fetch(`http://25.41.34.27/api/idevelop-control/resource/list?current=1&size=20&resourceCondition=${encodedQuery}`, {
             method: 'GET',
             headers: headers
           })
@@ -220,8 +267,8 @@ export default {
         const resourceData = await resourceResponse.json();
         
         // 保存结果
-        this.knowledgeResults = knowledgeData.data?.records || knowledgeData.records || [];
-        this.resourceResults = resourceData.data?.records || resourceData.records || [];
+        this.knowledgeResults = knowledgeData.data.records;
+        this.resourceResults = resourceData.data.records;
         this.resultCount = this.knowledgeResults.length + this.resourceResults.length;
         
         const endTime = Date.now();
@@ -604,7 +651,9 @@ export default {
   border-bottom: 2px solid #409EFF;
 }
 
-.knowledge-section,
+.knowledge-section{
+  /* margin-bottom: 30px; */
+}
 .resource-section {
   margin-bottom: 30px;
 }
@@ -628,8 +677,16 @@ export default {
   cursor: pointer;
 }
 
-.knowledge-title:hover,
-.resource-title:hover {
+.resource-title a {
+  color: #409EFF;
+  text-decoration: none;
+}
+
+.resource-title a:hover {
+  text-decoration: none;
+}
+
+.knowledge-title:hover {
   text-decoration: underline;
 }
 
