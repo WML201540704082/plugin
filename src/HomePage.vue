@@ -78,7 +78,7 @@
                 <div class="nav-items">
                   <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
                     <div class="nav-icon">
-                      <img v-if="item.icon" :src="item.icon" :alt="item.name" />
+                      <img v-if="item.icon" :src="item.icon" />
                       <i v-else class="el-icon-office-building"></i>
                     </div>
                     <span class="nav-name">{{ item.name }}</span>
@@ -561,6 +561,12 @@ body {
   font-size: 20px;
   color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
 }
 
 .icon-blue {
