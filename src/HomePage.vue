@@ -67,7 +67,8 @@
               v-model="navSearch"
               placeholder="请输入"
               size="small"
-              class="nav-input">
+              class="nav-input"
+              @keyup.enter="fetchNavItems(navSearch)">
             </el-input>
             <el-tabs v-model="activeNav" type="border-card" class="nav-tabs">
               <el-tab-pane name="company">
@@ -176,9 +177,14 @@ export default {
       
       return `${lunarMonth}${lunarDay}`;
     },
-    fetchNavItems() {
+    fetchNavItems(appName) {
       // 从API获取导航项
-      fetch('http://localhost:8080/api/idevelop-ipc/plugin/companyNav')
+      const url = new URL('http://localhost:8080/api/idevelop-ipc/plugin/companyNav');
+      if (appName) {
+        url.searchParams.append('appName', appName);
+      }
+      
+      fetch(url.toString())
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok');
