@@ -76,7 +76,7 @@
                   <span>公司导航</span>
                 </template>
                 <div class="nav-items">
-                  <div class="nav-item" v-for="(item, index) in navItems" :key="index">
+                  <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
                     <div class="nav-icon" :class="item.iconClass">
                       <i class="el-icon-office-building"></i>
                     </div>
@@ -93,7 +93,7 @@
                   <span>收藏夹导航</span>
                 </template>
                 <div class="nav-items">
-                  <div class="nav-item" v-for="(item, index) in navItems" :key="index">
+                  <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
                     <div class="nav-icon" :class="item.iconClass">
                       <i class="el-icon-star-on"></i>
                     </div>
@@ -132,25 +132,13 @@ export default {
         { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
         { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' }
       ],
-      navItems: [
-        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-green' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-green' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-green' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-blue' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-orange' },
-        { name: '鲁软科技公司门户', iconClass: 'icon-green' }
-      ]
+      navItems: []
     }
   },
   mounted() {
     this.updateDateTime();
     setInterval(this.updateDateTime, 1000);
+    this.fetchNavItems();
   },
   methods: {
     updateDateTime() {
@@ -185,6 +173,39 @@ export default {
       const lunarDay = lunarDays[day - 1] || lunarDays[lunarDays.length - 1];
       
       return `${lunarMonth}${lunarDay}`;
+    },
+    fetchNavItems() {
+      // 从API获取导航项
+      fetch('http://localhost:8080/api/idevelop-ipc/plugin/companyNav')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // 假设API返回的数据结构需要转换为我们需要的格式
+          // 这里根据实际API返回格式进行调整
+          if (data.code === 200 && data.data) {
+            this.navItems = data.data.map((item, index) => {
+              // 循环使用不同的图标颜色
+              const iconClasses = ['icon-blue', 'icon-orange', 'icon-green'];
+              return {
+                name: item.name || item.appName || '未知导航',
+                url: item.url || item.appUrl || '',
+                iconClass: iconClasses[index % iconClasses.length]
+              };
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch nav items:', error);
+        });
+    },
+    navigateToUrl(url) {
+      if (url) {
+        window.open(url, '_blank');
+      }
     },
     search() {
       window.location.href = `search.html?q=${encodeURIComponent(this.searchText)}`;
