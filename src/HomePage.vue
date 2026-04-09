@@ -68,6 +68,7 @@
               placeholder="请输入"
               size="small"
               class="nav-input"
+              clearable
               @keyup.enter.native="fetchNavItems(navSearch)">
             </el-input>
             <el-tabs v-model="activeNav" type="border-card" class="nav-tabs">
@@ -178,7 +179,6 @@ export default {
       return `${lunarMonth}${lunarDay}`;
     },
     fetchNavItems(appName) {
-      console.log('fetchNavItems called with:', appName);
       // 从API获取导航项
       const url = new URL('http://localhost:8080/api/idevelop-ipc/plugin/companyNav');
       if (appName) {
@@ -188,14 +188,12 @@ export default {
       
       fetch(url.toString())
         .then(response => {
-          console.log('API response status:', response.status);
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
           return response.json();
         })
         .then(data => {
-          console.log('API response data:', data);
           // 假设API返回的数据结构需要转换为我们需要的格式
           // 这里根据实际API返回格式进行调整
           if (data.code === 200 && data.data) {
@@ -206,7 +204,6 @@ export default {
                 icon: item.icon || ''
               };
             });
-            console.log('Updated navItems:', this.navItems);
           }
         })
         .catch(error => {
