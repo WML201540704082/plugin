@@ -77,8 +77,9 @@
                 </template>
                 <div class="nav-items">
                   <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
-                    <div class="nav-icon" :class="item.iconClass">
-                      <i class="el-icon-office-building"></i>
+                    <div class="nav-icon">
+                      <img v-if="item.icon" :src="item.icon" :alt="item.name" />
+                      <i v-else class="el-icon-office-building"></i>
                     </div>
                     <span class="nav-name">{{ item.name }}</span>
                   </div>
@@ -94,8 +95,9 @@
                 </template>
                 <div class="nav-items">
                   <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
-                    <div class="nav-icon" :class="item.iconClass">
-                      <i class="el-icon-star-on"></i>
+                    <div class="nav-icon">
+                      <img v-if="item.icon" :src="item.icon" :alt="item.name" />
+                      <i v-else class="el-icon-star-on"></i>
                     </div>
                     <span class="nav-name">{{ item.name }}</span>
                   </div>
@@ -188,12 +190,10 @@ export default {
           // 这里根据实际API返回格式进行调整
           if (data.code === 200 && data.data) {
             this.navItems = data.data.map((item, index) => {
-              // 循环使用不同的图标颜色
-              const iconClasses = ['icon-blue', 'icon-orange', 'icon-green'];
               return {
                 name: item.name || item.appName || '未知导航',
                 url: item.url || item.appUrl || '',
-                iconClass: iconClasses[index % iconClasses.length]
+                icon: item.icon || ''
               };
             });
           }
