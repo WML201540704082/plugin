@@ -46,10 +46,10 @@
                   <span>信息发布</span>
                 </template>
                 <div class="info-list">
-                  <div class="info-item" v-for="(item, index) in infoList" :key="index">
+                  <div class="info-item" v-for="(item, index) in infoList" :key="index" @click="navigateToUrl(item.url)">
                     <i class="el-icon-bell"></i>
                     <span class="info-title">{{ item.title }}</span>
-                    <span class="info-date">{{ item.createTime }}</span>
+                    <span class="info-date">{{ item.date }}</span>
                   </div>
                 </div>
               </el-tab-pane>
@@ -222,8 +222,9 @@ export default {
                 date = date.split(' ')[0];
               }
               return {
-                title: item.title || '无标题',
-                date: date
+                ...item,
+                date: date,
+                createTime: date
               };
             });
           }
