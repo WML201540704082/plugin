@@ -430,7 +430,7 @@ body {
 
 .info-list {
   padding: 0;
-  height: 350px;
+  height: 340px;
 }
 
 .info-item {
@@ -462,12 +462,25 @@ body {
   margin-left: 10px;
 }
 
+.el-tab-pane {
+  position: relative;
+  min-height: 300px; /* Ensure enough space for positioning */
+}
+
 .more-link {
-  text-align: right;
-  margin-top: 15px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
   color: #409EFF;
   cursor: pointer;
   font-size: 14px;
+  padding: 10px;
+}
+
+/* Ensure nav-tabs tab panes also have relative positioning */
+.nav-tabs .el-tab-pane {
+  position: relative;
+  min-height: 300px;
 }
 
 /* 公司导航卡片 */
