@@ -86,7 +86,7 @@
                     <span class="nav-name">{{ item.name }}</span>
                   </div>
                 </div>
-                <div class="more-link">
+                <div class="more-link" style="bottom: -20px;right: -16px;">
                   <span>>></span>
                 </div>
               </el-tab-pane>
@@ -104,9 +104,9 @@
                     <span class="nav-name">{{ item.name }}</span>
                   </div>
                 </div>
-                <div class="more-link">
+                <!-- <div class="more-link">
                   <span>>></span>
-                </div>
+                </div> -->
               </el-tab-pane>
             </el-tabs>
           </div>
@@ -464,7 +464,7 @@ body {
 
 .el-tab-pane {
   position: relative;
-  min-height: 300px; /* Ensure enough space for positioning */
+  min-height: 360px; /* Ensure enough space for positioning */
 }
 
 .more-link {
@@ -480,7 +480,7 @@ body {
 /* Ensure nav-tabs tab panes also have relative positioning */
 .nav-tabs .el-tab-pane {
   position: relative;
-  min-height: 300px;
+  min-height: 350px;
 }
 
 /* 公司导航卡片 */
