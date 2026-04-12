@@ -49,7 +49,7 @@
                   <div class="info-item" v-for="(item, index) in infoList" :key="index">
                     <i class="el-icon-bell"></i>
                     <span class="info-title">{{ item.title }}</span>
-                    <span class="info-date">{{ item.date }}</span>
+                    <span class="info-date">{{ item.createTime }}</span>
                   </div>
                 </div>
               </el-tab-pane>
@@ -173,7 +173,7 @@ export default {
     },
     fetchNavItems(appName) {
       // 从API获取导航项
-      const url = new URL('http://localhost:8080/api/idevelop-ipc/plugin/companyNav');
+      const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
       if (appName) {
         url.searchParams.append('appName', appName);
       }
@@ -187,10 +187,8 @@ export default {
           return response.json();
         })
         .then(data => {
-          // 假设API返回的数据结构需要转换为我们需要的格式
-          // 这里根据实际API返回格式进行调整
           if (data.code === 200 && data.data) {
-            this.navItems = data.data.map((item, index) => {
+            this.navItems = data.data.map((item) => {
               return {
                 name: item.name || item.appName || '未知导航',
                 url: item.url || item.appUrl || '',
@@ -206,29 +204,28 @@ export default {
     fetchMessages() {
       console.log('Fetching messages...');
       // 从API获取信息发布数据
-      const url = 'http://localhost:8080/api/idevelop-ipc/plugin/message/list';
-      console.log('Message API URL:', url);
+      const url = 'http://localhost:8080/api/idevelop-plugin/plugin/message/list';
       
       fetch(url)
         .then(response => {
-          console.log('Message API response status:', response.status);
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
           return response.json();
         })
         .then(data => {
-          console.log('Message API response data:', data);
-          // 假设API返回的数据结构需要转换为我们需要的格式
-          // 这里根据实际API返回格式进行调整
           if (data.code === 200 && data.data) {
-            this.infoList = data.data.map((item, index) => {
+            this.infoList = data.data.records.map(item => {
+              let date = item.date || item.createTime || '';
+              // 提取日期部分，去掉时间
+              if (date && typeof date === 'string' && date.includes(' ')) {
+                date = date.split(' ')[0];
+              }
               return {
                 title: item.title || '无标题',
-                date: item.date || item.createTime || ''
+                date: date
               };
             });
-            console.log('Updated infoList:', this.infoList);
           }
         })
         .catch(error => {
