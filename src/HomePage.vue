@@ -127,15 +127,7 @@ export default {
       navSearch: '',
       activeNav: 'company',
       activeInfoTab: 'info',
-      infoList: [
-        { title: '关于信息信息信息信息信息信息的通知', date: '2026-03-13' },
-        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-06' },
-        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
-        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
-        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
-        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' },
-        { title: '国调网省电力公司2025年4月电费新情况', date: '2026-03-13' }
-      ],
+      infoList: [],
       navItems: []
     }
   },
@@ -143,6 +135,7 @@ export default {
     this.updateDateTime();
     setInterval(this.updateDateTime, 1000);
     this.fetchNavItems();
+    this.fetchMessages();
   },
   methods: {
     updateDateTime() {
@@ -208,6 +201,38 @@ export default {
         })
         .catch(error => {
           console.error('Failed to fetch nav items:', error);
+        });
+    },
+    fetchMessages() {
+      console.log('Fetching messages...');
+      // 从API获取信息发布数据
+      const url = 'http://localhost:8080/api/idevelop-ipc/plugin/message/list';
+      console.log('Message API URL:', url);
+      
+      fetch(url)
+        .then(response => {
+          console.log('Message API response status:', response.status);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Message API response data:', data);
+          // 假设API返回的数据结构需要转换为我们需要的格式
+          // 这里根据实际API返回格式进行调整
+          if (data.code === 200 && data.data) {
+            this.infoList = data.data.map((item, index) => {
+              return {
+                title: item.title || '无标题',
+                date: item.date || item.createTime || ''
+              };
+            });
+            console.log('Updated infoList:', this.infoList);
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch messages:', error);
         });
     },
     navigateToUrl(url) {
