@@ -49,7 +49,7 @@
                   <div class="info-item" v-for="(item, index) in infoList" :key="index" @click="navigateToUrl(item.url)">
                     <i class="el-icon-bell"></i>
                     <span class="info-title">{{ item.title }}</span>
-                    <span class="info-date">{{ item.date }}</span>
+                    <span class="info-date">{{ item.createTime }}</span>
                   </div>
                 </div>
               </el-tab-pane>
@@ -216,15 +216,9 @@ export default {
         .then(data => {
           if (data.code === 200 && data.data) {
             this.infoList = data.data.records.map(item => {
-              let date = item.date || item.createTime || '';
-              // 提取日期部分，去掉时间
-              if (date && typeof date === 'string' && date.includes(' ')) {
-                date = date.split(' ')[0];
-              }
               return {
                 ...item,
-                date: date,
-                createTime: date
+                createTime: item.createTime.split(' ')[0]
               };
             });
           }
@@ -235,7 +229,14 @@ export default {
     },
     navigateToUrl(url) {
       if (url) {
-        window.open(url, '_blank');
+        if (url) {
+          // 确保URL包含协议头
+          let fullUrl = url;
+          if (!/^https?:\/\//i.test(url)) {
+            fullUrl = 'http://' + url;
+          }
+          window.open(fullUrl, '_blank');
+        }
       }
     },
     search() {
@@ -429,11 +430,13 @@ body {
 
 .info-list {
   padding: 0;
+  height: 350px;
 }
 
 .info-item {
   display: flex;
   align-items: center;
+  cursor: pointer;
   padding: 10px 0;
   border-bottom: 1px solid #f5f5f5;
 }
