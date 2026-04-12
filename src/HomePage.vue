@@ -137,6 +137,13 @@ export default {
     this.fetchNavItems();
     this.fetchMessages();
   },
+  watch: {
+    activeNav(newVal) {
+      if (newVal === 'favorites') {
+        window.open('http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/idevelop', '_blank');
+      }
+    }
+  },
   methods: {
     updateDateTime() {
       const now = new Date();
