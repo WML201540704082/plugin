@@ -153,18 +153,31 @@ export default {
         this.popup = window.open(
           'http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/idevelop',
           "_blank",
-          `width=${w},height=${h},top=${top},left=${left},scrollbars=false`
+          `width=${w},height=${h},top=${top},left=${left},scrollbars=false,alwaysRaised=yes`
         );
+        
+        // Focus the popup immediately
+        if (this.popup) {
+          this.popup.focus();
+        }
+        
         this.popupOpen = true;
         
-        // Check if popup is closed
+        // Check if popup is closed and keep it focused
         const checkPopup = setInterval(() => {
           if (this.popup && this.popup.closed) {
             clearInterval(checkPopup);
             this.popupOpen = false;
             this.activeNav = 'company'; // Switch back to company tab
+          } else if (this.popup && !this.popup.closed) {
+            // Try to focus the popup to keep it on top
+            try {
+              this.popup.focus();
+            } catch (e) {
+              // Ignore errors if popup is no longer accessible
+            }
           }
-        }, 1000);
+        }, 2000);
       }
     }
   },
