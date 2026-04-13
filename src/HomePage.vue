@@ -113,6 +113,9 @@
         </el-card>
       </div>
     </div>
+
+    <!-- Overlay to prevent interaction when popup is open -->
+    <div v-if="popupOpen" class="popup-overlay"></div>
   </div>
 </template>
 
@@ -127,8 +130,11 @@ export default {
       navSearch: '',
       activeNav: 'company',
       activeInfoTab: 'info',
+      navItems: [],
       infoList: [],
-      navItems: []
+      popup: null,
+      popupOpen: false,
+      ticket:'ST-1369578-GtRBieKexGkajRjQeF5d-iscsso.sd.sgcc.com.cn'
     }
   },
   mounted() {
@@ -140,7 +146,25 @@ export default {
   watch: {
     activeNav(newVal) {
       if (newVal === 'favorites') {
-        window.open('http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/idevelop', '_blank');
+        const w = 908;
+        const h = 600;
+        const left = (window.screen.width - w) / 2;
+        const top = (window.screen.height - h) / 2;
+        this.popup = window.open(
+          'http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/idevelop',
+          "_blank",
+          `width=${w},height=${h},top=${top},left=${left},scrollbars=false`
+        );
+        this.popupOpen = true;
+        
+        // Check if popup is closed
+        const checkPopup = setInterval(() => {
+          if (this.popup && this.popup.closed) {
+            clearInterval(checkPopup);
+            this.popupOpen = false;
+            this.activeNav = 'company'; // Switch back to company tab
+          }
+        }, 1000);
       }
     }
   },
@@ -488,6 +512,18 @@ body {
 .nav-tabs .el-tab-pane {
   position: relative;
   min-height: 350px;
+}
+
+/* Popup overlay */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  cursor: not-allowed;
 }
 
 /* 公司导航卡片 */
