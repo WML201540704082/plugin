@@ -150,34 +150,43 @@ export default {
         const h = 600;
         const left = (window.screen.width - w) / 2;
         const top = (window.screen.height - h) / 2;
+        
+        // Create popup with parameters to help it stay on top
         this.popup = window.open(
           'http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/idevelop',
-          "_blank",
-          `width=${w},height=${h},top=${top},left=${left},scrollbars=false,alwaysRaised=yes`
+          "SSOLogin",
+          `width=${w},height=${h},top=${top},left=${left},scrollbars=false,alwaysRaised=yes,modal=yes,dependent=yes,toolbar=no,menubar=no,location=yes,status=yes`
         );
-        
-        // Focus the popup immediately
-        if (this.popup) {
-          this.popup.focus();
-        }
         
         this.popupOpen = true;
         
-        // Check if popup is closed and keep it focused
-        const checkPopup = setInterval(() => {
-          if (this.popup && this.popup.closed) {
-            clearInterval(checkPopup);
-            this.popupOpen = false;
-            this.activeNav = 'company'; // Switch back to company tab
-          } else if (this.popup && !this.popup.closed) {
-            // Try to focus the popup to keep it on top
-            try {
-              this.popup.focus();
-            } catch (e) {
-              // Ignore errors if popup is no longer accessible
+        // Focus the popup immediately and set interval to keep it on top
+        if (this.popup) {
+          this.popup.focus();
+          
+          // Check if popup is closed and keep it focused
+          const checkPopup = setInterval(() => {
+            if (this.popup && this.popup.closed) {
+              clearInterval(checkPopup);
+              this.popupOpen = false;
+              this.activeNav = 'company'; // Switch back to company tab
+            } else if (this.popup && !this.popup.closed) {
+              // Try to focus the popup to keep it on top
+              try {
+                this.popup.focus();
+                // Bring window to front using different methods for different browsers
+                if (this.popup.window && this.popup.window.focus) {
+                  this.popup.window.focus();
+                }
+                if (this.popup.document && this.popup.document.focus) {
+                  this.popup.document.focus();
+                }
+              } catch (e) {
+                // Ignore errors if popup is no longer accessible
+              }
             }
-          }
-        }, 2000);
+          }, 1000); // Check more frequently
+        }
       }
     }
   },
