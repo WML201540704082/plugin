@@ -113,9 +113,6 @@
         </el-card>
       </div>
     </div>
-
-    <!-- Overlay to prevent interaction when popup is open -->
-    <div v-if="popupOpen" class="popup-overlay"></div>
   </div>
 </template>
 
@@ -133,7 +130,6 @@ export default {
       navItems: [],
       infoList: [],
       popup: null,
-      popupOpen: false,
       ticket:'ST-1369578-GtRBieKexGkajRjQeF5d-iscsso.sd.sgcc.com.cn'
     }
   },
@@ -151,42 +147,12 @@ export default {
         const left = (window.screen.width - w) / 2;
         const top = (window.screen.height - h) / 2;
         
-        // Create popup with parameters to help it stay on top
+        const popupUrl = `http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/plugin/login`;
         this.popup = window.open(
-          'http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/idevelop',
-          "SSOLogin",
-          `width=${w},height=${h},top=${top},left=${left},scrollbars=false,alwaysRaised=yes,modal=yes,dependent=yes,toolbar=no,menubar=no,location=yes,status=yes`
+          popupUrl,
+          "_blank",
+          `width=${w},height=${h},top=${top},left=${left},scrollbars=false`
         );
-        
-        this.popupOpen = true;
-        
-        // Focus the popup immediately and set interval to keep it on top
-        if (this.popup) {
-          this.popup.focus();
-          
-          // Check if popup is closed and keep it focused
-          const checkPopup = setInterval(() => {
-            if (this.popup && this.popup.closed) {
-              clearInterval(checkPopup);
-              this.popupOpen = false;
-              this.activeNav = 'company'; // Switch back to company tab
-            } else if (this.popup && !this.popup.closed) {
-              // Try to focus the popup to keep it on top
-              try {
-                this.popup.focus();
-                // Bring window to front using different methods for different browsers
-                if (this.popup.window && this.popup.window.focus) {
-                  this.popup.window.focus();
-                }
-                if (this.popup.document && this.popup.document.focus) {
-                  this.popup.document.focus();
-                }
-              } catch (e) {
-                // Ignore errors if popup is no longer accessible
-              }
-            }
-          }, 1000); // Check more frequently
-        }
       }
     }
   },
@@ -226,7 +192,7 @@ export default {
     },
     fetchNavItems(appName) {
       // 从API获取导航项
-      const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
+      const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
       if (appName) {
         url.searchParams.append('appName', appName);
       }
@@ -257,7 +223,7 @@ export default {
     fetchMessages() {
       console.log('Fetching messages...');
       // 从API获取信息发布数据
-      const url = 'http://localhost:8080/api/idevelop-plugin/plugin/message/list';
+      const url = 'http://25.41.34.27/api/idevelop-plugin/plugin/message/list';
       
       fetch(url)
         .then(response => {
@@ -294,6 +260,22 @@ export default {
     },
     search() {
       window.location.href = `search.html?q=${encodeURIComponent(this.searchText)}`;
+    },
+    handlePopupClose() {
+      console.log('Handling popup close');
+      // Since we can't access the popup's URL due to cross-origin restrictions,
+      // we'll need to implement an alternative approach to get the authentication data
+      // 
+      // Option 1: Use a redirect back to the extension
+      // The service provider should redirect back to a URL in the extension
+      // with the authentication data as parameters
+      // 
+      // Option 2: Use postMessage to communicate between windows
+      // This requires the popup to send a message to the parent window
+      // before closing
+      // 
+      // For now, we'll just log that the popup was closed
+      // and implement the actual authentication handling based on the chosen approach
     }
   }
 }
@@ -534,18 +516,6 @@ body {
 .nav-tabs .el-tab-pane {
   position: relative;
   min-height: 350px;
-}
-
-/* Popup overlay */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  cursor: not-allowed;
 }
 
 /* 公司导航卡片 */
