@@ -2,14 +2,14 @@
   <div id="app">
     <!-- 顶部用户信息 -->
     <div class="user-info">
-      <span>管理员，欢迎！</span>
+      <span>游客</span>
       <el-dropdown>
         <span class="el-dropdown-link">
           <i class="el-icon-setting"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>个人设置</el-dropdown-item>
-          <el-dropdown-item>退出登录</el-dropdown-item>
+          <el-dropdown-item v-if="!ticket" @click="login">ISC登录</el-dropdown-item>
+          <el-dropdown-item v-else>退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -78,8 +78,8 @@
                   <span>公司导航</span>
                 </template>
                 <div class="nav-items">
-                  <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
-                    <div class="nav-icon">
+                  <div class="nav-item" v-for="(item, index) in navItems" :key="index">
+                    <div class="nav-icon" @click="navigateToUrl(item.url)">
                       <img v-if="item.icon" :src="item.icon" />
                       <i v-else class="el-icon-office-building"></i>
                     </div>
@@ -96,12 +96,18 @@
                   <span>收藏夹导航</span>
                 </template>
                 <div class="nav-items">
-                  <div class="nav-item" v-for="(item, index) in navItems" :key="index" @click="navigateToUrl(item.url)">
-                    <div class="nav-icon">
+                  <div class="nav-item" v-for="(item, index) in favoritesItems" :key="index">
+                    <div class="nav-icon" @click="navigateToUrl(item.url)">
                       <img v-if="item.icon" :src="item.icon" :alt="item.name" />
                       <i v-else class="el-icon-star-on"></i>
                     </div>
                     <span class="nav-name">{{ item.name }}</span>
+                  </div>
+                  <div class="nav-item add-favorite">
+                    <div class="nav-icon add-icon" @click="addFavorite">
+                      <i class="el-icon-plus"></i>
+                    </div>
+                    <span class="nav-name"></span>
                   </div>
                 </div>
                 <!-- <div class="more-link">
@@ -113,6 +119,32 @@
         </el-card>
       </div>
     </div>
+    <!-- 新增收藏弹窗 -->
+    <el-dialog
+      title="新增收藏"
+      :visible.sync="showAddFavoriteDialog"
+      width="500px"
+      @close="handleCancelAddFavorite"
+    >
+      <el-form :model="favoriteForm" label-width="80px">
+        <el-form-item label="应用名称" required>
+          <el-input v-model="favoriteForm.name" placeholder="请输入应用名称"></el-input>
+        </el-form-item>
+        <el-form-item label="URL" required>
+          <el-input v-model="favoriteForm.url" placeholder="请输入URL地址"></el-input>
+        </el-form-item>
+        <el-form-item label="图标">
+          <div class="icon-upload-area" @click="handleIconUpload">
+            <i class="el-icon-plus"></i>
+          </div>
+          <div class="icon-upload-tip">图标格式支持jpg、jpeg、png，图片文件大小不超过100k</div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="handleCancelAddFavorite">取消</el-button>
+        <el-button type="primary" @click="handleAddFavorite">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -128,33 +160,42 @@ export default {
       activeNav: 'company',
       activeInfoTab: 'info',
       navItems: [],
+      favoritesItems: [],
       infoList: [],
       popup: null,
-      ticket:'ST-1369578-GtRBieKexGkajRjQeF5d-iscsso.sd.sgcc.com.cn'
+      ticket:'',
+      // 新增收藏弹窗
+      showAddFavoriteDialog: false,
+      favoriteForm: {
+        name: '',
+        icon: '',
+        url: ''
+      }
     }
   },
   mounted() {
     this.updateDateTime();
     setInterval(this.updateDateTime, 1000);
     this.fetchNavItems();
+    this.fetchFavoritesItems();
     this.fetchMessages();
   },
   watch: {
-    activeNav(newVal) {
-      if (newVal === 'favorites') {
-        const w = 908;
-        const h = 600;
-        const left = (window.screen.width - w) / 2;
-        const top = (window.screen.height - h) / 2;
+    // activeNav(newVal) {
+    //   if (newVal === 'favorites') {
+    //     const w = 908;
+    //     const h = 600;
+    //     const left = (window.screen.width - w) / 2;
+    //     const top = (window.screen.height - h) / 2;
         
-        const popupUrl = `http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/plugin/login`;
-        this.popup = window.open(
-          popupUrl,
-          "_blank",
-          `width=${w},height=${h},top=${top},left=${left},scrollbars=false`
-        );
-      }
-    }
+    //     const popupUrl = `http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/plugin/login`;
+    //     this.popup = window.open(
+    //       popupUrl,
+    //       "_blank",
+    //       `width=${w},height=${h},top=${top},left=${left},scrollbars=false`
+    //     );
+    //   }
+    // }
   },
   methods: {
     updateDateTime() {
@@ -192,7 +233,8 @@ export default {
     },
     fetchNavItems(appName) {
       // 从API获取导航项
-      const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
+      // const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
+      const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
       if (appName) {
         url.searchParams.append('appName', appName);
       }
@@ -223,7 +265,8 @@ export default {
     fetchMessages() {
       console.log('Fetching messages...');
       // 从API获取信息发布数据
-      const url = 'http://25.41.34.27/api/idevelop-plugin/plugin/message/list';
+      // const url = 'http://25.41.34.27/api/idevelop-plugin/plugin/message/list';
+      const url = 'http://localhost:8080/api/idevelop-plugin/plugin/message/list';
       
       fetch(url)
         .then(response => {
@@ -246,6 +289,34 @@ export default {
           console.error('Failed to fetch messages:', error);
         });
     },
+    fetchFavoritesItems() {
+      console.log('Fetching favorites items...');
+      // 暂时使用公司导航的接口作为替代
+      // const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
+      const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
+      
+      fetch(url.toString())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.code === 200 && data.data) {
+            this.favoritesItems = data.data.map((item) => {
+              return {
+                name: item.name || item.appName || '未知导航',
+                url: item.url || item.appUrl || '',
+                icon: item.icon || ''
+              };
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch favorites items:', error);
+        });
+    },
     navigateToUrl(url) {
       if (url) {
         if (url) {
@@ -260,6 +331,19 @@ export default {
     },
     search() {
       window.location.href = `search.html?q=${encodeURIComponent(this.searchText)}`;
+    },
+    login() {
+      const w = 908;
+      const h = 600;
+      const left = (window.screen.width - w) / 2;
+      const top = (window.screen.height - h) / 2;
+      
+      const popupUrl = `http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/plugin/login`;
+      this.popup = window.open(
+        popupUrl,
+        "_blank",
+        `width=${w},height=${h},top=${top},left=${left},scrollbars=false`
+      );
     },
     handlePopupClose() {
       console.log('Handling popup close');
@@ -276,6 +360,32 @@ export default {
       // 
       // For now, we'll just log that the popup was closed
       // and implement the actual authentication handling based on the chosen approach
+    },
+    addFavorite() {
+      // 重置表单
+      this.favoriteForm = {
+        name: '',
+        icon: '',
+        url: ''
+      };
+      // 打开弹窗
+      this.showAddFavoriteDialog = true;
+    },
+    handleAddFavorite() {
+      console.log('Submit add favorite:', this.favoriteForm);
+      // 实现新增收藏的逻辑
+      // 这里可以调用API保存收藏信息
+      // 保存成功后关闭弹窗并刷新收藏列表
+      this.showAddFavoriteDialog = false;
+      this.fetchFavoritesItems();
+    },
+    handleCancelAddFavorite() {
+      // 关闭弹窗
+      this.showAddFavoriteDialog = false;
+    },
+    handleIconUpload() {
+      console.log('Upload icon');
+      // 实现图标上传逻辑
     }
   }
 }
@@ -628,7 +738,7 @@ body {
 }
 
 .nav-item:hover {
-  background-color: rgba(64, 158, 255, 0.1);
+  /* background-color: rgba(64, 158, 255, 0.1); */
   border-radius: 8px;
 }
 
@@ -649,6 +759,44 @@ body {
     border-radius: 8px;
     object-fit: cover;
   }
+}
+
+.add-icon {
+  background-color: white;
+  color: #999;
+  border: 1px dashed #ddd;
+  box-shadow: none;
+}
+
+.add-favorite:hover {
+  /* background-color: rgba(64, 158, 255, 0.05); */
+  border-radius: 8px;
+}
+
+/* 图标上传区域样式 */
+.icon-upload-area {
+  width: 100px;
+  height: 100px;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 10px 0;
+  font-size: 24px;
+  color: #999;
+}
+
+.icon-upload-area:hover {
+  border-color: #409EFF;
+  color: #409EFF;
+}
+
+.icon-upload-tip {
+  font-size: 12px;
+  color: #999;
+  margin-top: 5px;
 }
 
 .icon-blue {
