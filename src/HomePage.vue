@@ -120,62 +120,22 @@
       </div>
     </div>
     <!-- 新增收藏弹窗 -->
-    <el-dialog
-      title="新增收藏"
-      :visible.sync="showAddFavoriteDialog"
-      width="500px"
+    <AddFavoriteDialog
+      :visible="showAddFavoriteDialog"
       @close="handleCancelAddFavorite"
-    >
-      <el-form :model="favoriteForm" label-width="80px">
-        <el-form-item label="应用名称" required>
-          <el-input v-model="favoriteForm.name" placeholder="请输入应用名称"></el-input>
-        </el-form-item>
-        <el-form-item label="图标">
-          <el-upload
-            :class="{
-              'avatar-uploader': true,
-              disabledPic: disabled
-            }"
-            ref="uploadFiles"
-            :limit="1"
-            accept=".jpg,.jpeg,.bmp,.png"
-            name="file"
-            :headers="headers"
-            list-type="picture-card"
-            :action="'#'"
-            :file-list="fileListNo"
-            :disabled="disabled"
-            :http-request="uploadFile"
-            :before-upload="beforeUpload"
-            :on-progress="handleFileUploadProgress"
-            :on-preview="handlePreview"
-            :on-success="handleFileSuccess"
-            :on-remove="handleRemove"
-            :auto-upload="true"
-            v-loading="showLoading"
-          >
-            <i class="el-icon-plus"></i>
-          </el-upload>
-          <el-dialog :modal-append-to-body="true" append-to-body :close-on-click-modal="false" :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="">
-          </el-dialog>
-        </el-form-item>
-        
-        <el-form-item label="URL" required>
-          <el-input v-model="favoriteForm.url" placeholder="请输入URL地址"></el-input>
-        </el-form-item>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="handleCancelAddFavorite">取消</el-button>
-          <el-button type="primary" @click="handleAddFavorite">确定</el-button>
-        </div>
-      </el-form>
-    </el-dialog>
+      @submit="handleAddFavorite"
+    />
   </div>
 </template>
 
 <script>
+import AddFavoriteDialog from './components/AddFavoriteDialog.vue';
+
 export default {
   name: 'HomePage',
+  components: {
+    AddFavoriteDialog
+  },
   data() {
     return {
       currentTime: '',
@@ -190,19 +150,7 @@ export default {
       popup: null,
       ticket:'',
       // 新增收藏弹窗
-      showAddFavoriteDialog: false,
-      favoriteForm: {
-        name: '',
-        icon: '',
-        url: ''
-      },
-      // 图标上传相关
-      fileListNo: [],
-      dialogVisible: false,
-      dialogImageUrl: '',
-      disabled: false,
-      showLoading: false,
-      headers: {}
+      showAddFavoriteDialog: false
     }
   },
   mounted() {
@@ -403,8 +351,8 @@ export default {
       // 打开弹窗
       this.showAddFavoriteDialog = true;
     },
-    handleAddFavorite() {
-      console.log('Submit add favorite:', this.favoriteForm);
+    handleAddFavorite(formData) {
+      console.log('Submit add favorite:', formData);
       // 实现新增收藏的逻辑
       // 这里可以调用API保存收藏信息
       // 保存成功后关闭弹窗并刷新收藏列表
@@ -414,72 +362,6 @@ export default {
     handleCancelAddFavorite() {
       // 关闭弹窗
       this.showAddFavoriteDialog = false;
-    },
-    uploadFile(params) {
-      const file = params.file
-
-      const formData = new FormData()
-      formData.append("file", file)
-
-      // 这里应该调用实际的上传API
-      // uploadFile1(formData).then(res=>{
-      //   params.onSuccess(res)
-      // }).catch(error=>{
-      //   params.onError(error)
-      // })
-      
-      // 模拟上传成功
-      setTimeout(() => {
-        const mockResponse = {
-          data: {
-            originalName: file.name,
-            link: URL.createObjectURL(file)
-          }
-        };
-        params.onSuccess(mockResponse);
-      }, 1000);
-    },
-    beforeUpload(file) {
-      let acceptType = ['jpg','jpeg','png','PNG','bmp'];
-      let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-      if (-1 === acceptType.indexOf(extension)) {
-        this.$message.warning('支持文件格式'+ acceptType +'！');
-        return false;
-      }
-      if (file.size/1024 > 100) {
-        this.$message.warning("当前文件超过100k，请修改！");
-        return false;
-      }
-    },
-    handleFileUploadProgress(event, file, fileList) {
-      // 处理上传进度
-      console.log('Upload progress:', event);
-    },
-    handlePreview(file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible = true
-    },
-    handleFileSuccess(response, file, fileList) {
-      let params = {
-        fileName: response.data.originalName||'',
-        fileType: '',
-        fileUrl: response.data.link||'',
-        name:  response.data.originalName||'',
-        url: response.data.link||'',
-        status: null,
-      }
-      // 清空之前的文件列表，只保留最新的
-      this.fileListNo = [params];
-      // 更新favoriteForm中的icon
-      this.favoriteForm.icon = response.data.link||'';
-      this.dialogImageUrl = file.url
-    },
-    handleRemove(file, fileList) {
-      // 处理文件移除
-      this.fileListNo = fileList;
-      if (fileList.length === 0) {
-        this.favoriteForm.icon = '';
-      }
     }
   }
 }
