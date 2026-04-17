@@ -16,6 +16,7 @@
         <el-upload
           :class="{
             'avatar-uploader': true,
+            disabledPic: disabled,
           }"
           ref="uploadFiles"
           :limit="1"
@@ -25,12 +26,12 @@
           list-type="picture-card"
           :action="'#'"
           :file-list="fileListNo"
-          :disabled="disabled"
           :http-request="uploadFile"
           :before-upload="beforeUpload"
           :on-preview="handlePreview"
           :on-success="handleFileSuccess"
           :on-remove="handleRemove"
+          :on-exceed="handleExceed"
           :auto-upload="true"
           v-loading="showLoading"
         >
@@ -71,7 +72,7 @@ export default {
       dialogImageUrl: '',
       disabled: false,
       showLoading: false,
-      headers: {}
+      headers: {},
     }
   },
   methods: {
@@ -104,12 +105,15 @@ export default {
       
       // 模拟上传成功
       setTimeout(() => {
+        const fileUrl = URL.createObjectURL(file);
         const mockResponse = {
           data: {
             originalName: file.name,
-            link: URL.createObjectURL(file)
+            link: fileUrl
           }
         };
+        // 确保file对象有url属性
+        file.url = fileUrl;
         params.onSuccess(mockResponse);
       }, 1000);
     },
@@ -124,33 +128,32 @@ export default {
         this.$message.warning("当前文件超过100k，请修改！");
         return false;
       }
+      return true;
     },
     handlePreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
     handleFileSuccess(response, file, fileList) {
-      let params = {
-        fileName: response.data.originalName||'',
-        fileType: '',
-        fileUrl: response.data.link||'',
-        name:  response.data.originalName||'',
-        url: response.data.link||'',
-        status: null,
-      }
-      // 清空之前的文件列表，只保留最新的
-      this.fileListNo = [params];
+      this.disabled = true
+      // 使用组件提供的fileList，而不是重新创建
+      this.fileListNo = fileList;
       // 更新form中的icon
       this.form.icon = response.data.link||'';
-      this.dialogImageUrl = file.url
+      this.dialogImageUrl = response.data.link||'';
     },
     handleRemove(file, fileList) {
+      this.disabled = false
       // 处理文件移除
       this.fileListNo = fileList;
       if (fileList.length === 0) {
         this.form.icon = '';
       }
-    }
+    },
+    handleExceed(){
+      // console.log(456456, this.fileListNo)
+      this.$message.warning('图片上传数量已上限！')
+    },
   }
 }
 </script>
@@ -161,6 +164,9 @@ export default {
   margin: 10px 0;
 }
 
+::v-deep .disabledPic .el-upload--picture-card {
+    display: none !important;
+  }
 .icon-upload-tip {
   font-size: 12px;
   color: #999;
