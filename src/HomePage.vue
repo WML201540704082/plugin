@@ -97,9 +97,15 @@
                 </template>
                 <div class="nav-items">
                   <div class="nav-item" v-for="(item, index) in favoritesItems" :key="index">
-                    <div class="nav-icon" @click="navigateToUrl(item.url)">
-                      <img v-if="item.icon" :src="item.icon" :alt="item.name" />
-                      <i v-else class="el-icon-star-on"></i>
+                    <div class="nav-icon-container">
+                      <div class="nav-icon" @click="navigateToUrl(item.url)">
+                        <img v-if="item.icon" :src="item.icon" :alt="item.name" />
+                        <i v-else class="el-icon-star-on"></i>
+                      </div>
+                      <div class="nav-item-actions">
+                        <i class="el-icon-edit" @click.stop="editFavorite(item, index)"></i>
+                        <i class="el-icon-delete" @click.stop="deleteFavorite(item, index)"></i>
+                      </div>
                     </div>
                     <span class="nav-name">{{ item.name }}</span>
                   </div>
@@ -119,9 +125,10 @@
         </el-card>
       </div>
     </div>
-    <!-- 新增收藏弹窗 -->
+    <!-- 新增/编辑收藏弹窗 -->
     <AddFavoriteDialog
       :visible="showAddFavoriteDialog"
+      :edit-data="currentEditData"
       @close="handleCancelAddFavorite"
       @submit="handleAddFavorite"
     />
@@ -149,8 +156,9 @@ export default {
       infoList: [],
       popup: null,
       ticket:'',
-      // 新增收藏弹窗
-      showAddFavoriteDialog: false
+      // 新增/编辑收藏弹窗
+      showAddFavoriteDialog: false,
+      currentEditData: null
     }
   },
   mounted() {
@@ -342,26 +350,36 @@ export default {
       // and implement the actual authentication handling based on the chosen approach
     },
     addFavorite() {
-      // 重置表单
-      this.favoriteForm = {
-        name: '',
-        icon: '',
-        url: ''
-      };
+      // 清除编辑数据，确保是新增模式
+      this.currentEditData = null;
       // 打开弹窗
       this.showAddFavoriteDialog = true;
     },
     handleAddFavorite(formData) {
-      console.log('Submit add favorite:', formData);
-      // 实现新增收藏的逻辑
+      console.log('Submit favorite:', formData, this.currentEditData ? 'Edit' : 'Add');
+      // 实现新增或编辑收藏的逻辑
       // 这里可以调用API保存收藏信息
       // 保存成功后关闭弹窗并刷新收藏列表
       this.showAddFavoriteDialog = false;
+      this.currentEditData = null;
       this.fetchFavoritesItems();
     },
     handleCancelAddFavorite() {
-      // 关闭弹窗
+      // 关闭弹窗并清除编辑数据
       this.showAddFavoriteDialog = false;
+      this.currentEditData = null;
+    },
+    editFavorite(item, index) {
+      console.log('Edit favorite:', item, index);
+      // 设置编辑数据
+      this.currentEditData = item;
+      // 打开弹窗
+      this.showAddFavoriteDialog = true;
+    },
+    deleteFavorite(item, index) {
+      console.log('Delete favorite:', item, index);
+      // 实现删除收藏的逻辑
+      // 这里可以显示确认对话框，然后删除收藏项
     }
   }
 }
@@ -711,6 +729,7 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   padding: 10px;
+  position: relative;
 }
 
 .nav-item:hover {
@@ -718,9 +737,49 @@ body {
   border-radius: 8px;
 }
 
+.nav-icon-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.nav-item-actions {
+  position: absolute;
+  /* top: -5px;
+  right: -5px; */
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.nav-item:hover .nav-item-actions {
+  opacity: 1;
+}
+
+.nav-item-actions i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav-item-actions i:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
 .nav-icon {
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
   border-radius: 8px;
   margin-bottom: 10px;
   display: flex;
@@ -730,8 +789,8 @@ body {
   color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   img {
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
     border-radius: 8px;
     object-fit: cover;
   }

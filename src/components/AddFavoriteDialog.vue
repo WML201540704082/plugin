@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="新增收藏"
+    :title="editData ? '编辑收藏' : '新增收藏'"
     :visible.sync="visible"
     width="500px"
     @close="handleCancel"
@@ -57,6 +57,10 @@ export default {
     visible: {
       type: Boolean,
       default: false
+    },
+    editData: {
+      type: Object,
+      default: null
     }
   },
   data() {
@@ -75,6 +79,33 @@ export default {
       headers: {},
     }
   },
+  watch: {
+    editData: {
+      handler(newVal) {
+        if (newVal) {
+          // 填充表单数据
+          this.form = {
+            name: newVal.name || '',
+            icon: newVal.icon || '',
+            url: newVal.url || ''
+          };
+          // 填充文件列表
+          if (newVal.icon) {
+            this.fileListNo = [{
+              name: newVal.name || 'icon',
+              url: newVal.icon,
+              status: 'success'
+            }];
+            this.disabled = true;
+          } else {
+            this.fileListNo = [];
+            this.disabled = false;
+          }
+        }
+      },
+      immediate: true
+    }
+  },
   methods: {
     handleSubmit() {
       this.$emit('submit', this.form);
@@ -88,6 +119,8 @@ export default {
         url: ''
       };
       this.fileListNo = [];
+      // 重置disabled状态，确保下次打开弹窗时上传框可见
+      this.disabled = false;
       this.$emit('close');
     },
     uploadFile(params) {
@@ -117,6 +150,20 @@ export default {
         params.onSuccess(mockResponse);
       }, 1000);
     },
+
+    handlePreview(file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
+    },
+    handleFileSuccess(response, file, fileList) {
+      // 先更新fileListNo，确保文件列表正确
+      this.fileListNo = fileList;
+      // 更新form中的icon
+      this.form.icon = response.data.link||'';
+      this.dialogImageUrl = response.data.link||'';
+      // 最后设置disabled，确保上传框不会短暂显示
+      this.disabled = true;
+    },
     beforeUpload(file) {
       let acceptType = ['jpg','jpeg','png','PNG','bmp'];
       let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
@@ -128,19 +175,9 @@ export default {
         this.$message.warning("当前文件超过100k，请修改！");
         return false;
       }
+      // 开始上传时就设置disabled，避免上传过程中上传框显示
+      this.disabled = true;
       return true;
-    },
-    handlePreview(file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible = true
-    },
-    handleFileSuccess(response, file, fileList) {
-      this.disabled = true
-      // 使用组件提供的fileList，而不是重新创建
-      this.fileListNo = fileList;
-      // 更新form中的icon
-      this.form.icon = response.data.link||'';
-      this.dialogImageUrl = response.data.link||'';
     },
     handleRemove(file, fileList) {
       this.disabled = false
