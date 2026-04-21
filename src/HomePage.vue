@@ -8,7 +8,7 @@
           <i class="el-icon-setting"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-if="!ticket" @click="login">ISC登录</el-dropdown-item>
+          <el-dropdown-item v-if="!ticket" @click.native="login">ISC登录</el-dropdown-item>
           <el-dropdown-item v-else>退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -221,8 +221,8 @@ export default {
     },
     fetchNavItems(appName) {
       // 从API获取导航项
-      // const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
-      const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
+      const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
+      // const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
       if (appName) {
         url.searchParams.append('appName', appName);
       }
@@ -253,8 +253,8 @@ export default {
     fetchMessages() {
       console.log('Fetching messages...');
       // 从API获取信息发布数据
-      // const url = 'http://25.41.34.27/api/idevelop-plugin/plugin/message/list';
-      const url = 'http://localhost:8080/api/idevelop-plugin/plugin/message/list';
+      const url = 'http://25.41.34.27/api/idevelop-plugin/plugin/message/list';
+      // const url = 'http://localhost:8080/api/idevelop-plugin/plugin/message/list';
       
       fetch(url)
         .then(response => {
@@ -280,8 +280,8 @@ export default {
     fetchFavoritesItems() {
       console.log('Fetching favorites items...');
       // 暂时使用公司导航的接口作为替代
-      // const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
-      const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
+      const url = new URL('http://25.41.34.27/api/idevelop-plugin/plugin/companyNav');
+      // const url = new URL('http://localhost:8080/api/idevelop-plugin/plugin/companyNav');
       
       fetch(url.toString())
         .then(response => {
@@ -326,7 +326,7 @@ export default {
       const left = (window.screen.width - w) / 2;
       const top = (window.screen.height - h) / 2;
       
-      const popupUrl = `http://iscsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/plugin/login`;
+      const popupUrl = `http://iscxcsso.sd.sgcc.com.cn/isc_sso/login?service=http://25.41.34.27/plugin/login`;
       this.popup = window.open(
         popupUrl,
         "_blank",

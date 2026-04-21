@@ -8,7 +8,7 @@
     "http://25.219.129.212:19010/*",
     "http://27.41.17.135:18084/*",
     "http://25.41.34.27/*",
-    "http://iscsso.sd.sgcc.com.cn/*"
+    "http://iscxcsso.sd.sgcc.com.cn/*"
   ],
   "chrome_url_overrides": {
     "newtab": "homepage.html"
